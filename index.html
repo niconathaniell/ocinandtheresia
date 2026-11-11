@@ -8,6 +8,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- PeerJS CDN for Optional Live LDR Room Sync -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <!-- Google Fonts: Plus Jakarta Sans & Playfair Display -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
@@ -33,6 +35,19 @@
     }
     .floating-heart {
       animation: floatUpHeart 3.6s ease-out forwards;
+    }
+    @keyframes pulseRing {
+      0% {
+        transform: scale(0.5);
+        opacity: 0.9;
+      }
+      100% {
+        transform: scale(2.8);
+        opacity: 0;
+      }
+    }
+    .thumb-pulse-ring {
+      animation: pulseRing 1.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
     }
     /* Custom Scrollbar */
     ::-webkit-scrollbar {
@@ -141,7 +156,7 @@
       </button>
       <button onclick="switchTab('games')" id="tab-btn-games" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all">
         <i data-lucide="gamepad-2" class="w-4 h-4"></i>
-        <span>5 Game LDR Kita</span>
+        <span>"Just Us" & Game LDR</span>
       </button>
       <button onclick="switchTab('capsules')" id="tab-btn-capsules" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all">
         <i data-lucide="mail-heart" class="w-4 h-4"></i>
@@ -154,37 +169,37 @@
   <main class="max-w-6xl mx-auto w-full p-4 sm:p-6 flex-1 space-y-6">
 
     <!-- ========================================== -->
-    <!-- TAB 1: DASHBOARD & DUAL CLOCKS             -->
+    <!-- TAB 1: DASHBOARD & JAM DUA NEGARA          -->
     <!-- ========================================== -->
     <section id="tab-dashboard" class="tab-section space-y-6">
-      <!-- Top Counter Cards -->
+      <!-- Top Milestone Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="bg-white/90 p-5 rounded-3xl border border-rose-100 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-[11px] font-bold text-rose-500 uppercase tracking-wider">Hari Bersama 💖</p>
-            <h3 class="text-3xl font-extrabold text-slate-800 mt-1"><span id="days-together-count">0</span> <span class="text-xs font-normal text-slate-500">hari</span></h3>
-            <button onclick="promptEditDates()" class="text-[11px] text-rose-500 underline mt-1 hover:text-rose-700">Atur Tanggal Jadian</button>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-rose-500">Hari Bersama</span>
+            <h3 class="text-3xl font-extrabold text-slate-800 mt-1"><span id="days-together-count">0</span> <span class="text-xs font-semibold text-slate-400">hari</span></h3>
+            <p class="text-xs text-slate-400 mt-1">Penuh cinta & rindu 💖</p>
           </div>
-          <div class="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500 text-2xl">💑</div>
+          <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-2xl">💑</div>
         </div>
 
         <div class="bg-white/90 p-5 rounded-3xl border border-rose-100 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-[11px] font-bold text-pink-500 uppercase tracking-wider">Menuju Pelukan Berikutnya ✈️</p>
-            <h3 class="text-3xl font-extrabold text-slate-800 mt-1"><span id="days-reunion-count">0</span> <span class="text-xs font-normal text-slate-500">hari lagi</span></h3>
-            <button onclick="promptEditDates()" class="text-[11px] text-pink-500 underline mt-1 hover:text-pink-700">Ubah Target Ketemu</button>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-pink-500">Menuju Pelukan Bandara</span>
+            <h3 class="text-3xl font-extrabold text-slate-800 mt-1"><span id="days-reunion-count">0</span> <span class="text-xs font-semibold text-slate-400">hari lagi</span></h3>
+            <p class="text-xs text-slate-400 mt-1">Cardiff ✈️ Jakarta</p>
           </div>
-          <div class="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center text-pink-500 text-2xl">🛫</div>
+          <div class="w-12 h-12 rounded-2xl bg-pink-50 text-pink-500 flex items-center justify-center text-2xl">✈️</div>
         </div>
 
         <div class="bg-gradient-to-tr from-rose-500 to-pink-500 p-5 rounded-3xl text-white shadow-md shadow-rose-200 flex flex-col justify-between">
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-bold uppercase tracking-wider opacity-90">Jembatan Hati</span>
-            <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full">Beda 6-7 Jam</span>
+          <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider opacity-90">
+            <span>Jembatan Rindu</span>
+            <span>🇬🇧 ❤️ 🇮🇩</span>
           </div>
           <div class="my-1">
-            <p class="text-xl font-extrabold">Cardiff 🇬🇧 ↔ Jakarta 🇮🇩</p>
-            <p class="text-xs opacity-90">Sejauh 11.720 km, sedekat doa & layar kita</p>
+            <p class="text-2xl font-extrabold">11.720 Kilometer</p>
+            <p class="text-xs opacity-85">Perbedaan waktu 6–7 jam, satu hati</p>
           </div>
           <div class="w-full bg-white/25 h-2 rounded-full overflow-hidden mt-2">
             <div class="bg-white h-full w-3/4 rounded-full animate-pulse"></div>
@@ -192,80 +207,360 @@
         </div>
       </div>
 
-      <!-- Dual Timezone Clocks -->
+      <!-- Dual Live Clocks: Cardiff & Jakarta -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Cardiff Card (Kokoocinsayang) -->
-        <div class="bg-white/90 border border-rose-100 rounded-3xl p-6 shadow-sm relative overflow-hidden">
-          <div class="flex items-center justify-between mb-3">
+        <!-- Cardiff Clock Card -->
+        <div class="bg-white/90 rounded-3xl p-6 border border-sky-100 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <span class="text-3xl">🇬🇧</span>
               <div>
-                <span class="text-[11px] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-md uppercase">Kokoocinsayang (Nico)</span>
-                <h3 class="font-extrabold text-slate-800 text-lg mt-0.5">Cardiff, Wales, UK</h3>
+                <h3 class="font-extrabold text-slate-800 text-base sm:text-lg">Kokoocinsayang • Cardiff, UK</h3>
+                <p id="uk-date-text" class="text-xs text-slate-400">Waktu Inggris (GMT/BST)</p>
               </div>
             </div>
-            <div id="uk-daynight-badge" class="px-3 py-1 rounded-xl bg-slate-100 text-xs font-bold text-slate-700">☀️ Siang</div>
+            <span class="px-2.5 py-1 bg-sky-50 text-sky-700 rounded-full text-xs font-bold">Cardiff</span>
           </div>
-
-          <div id="uk-clock" class="text-4xl sm:text-5xl font-mono-clock font-bold tracking-tight text-slate-800 my-3">
-            --:--:--
-          </div>
-          <p id="uk-date" class="text-xs text-slate-400 mb-4">Memuat tanggal...</p>
-
-          <div class="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div>
-              <span class="text-slate-400 block mb-1">Status & Vibe Koko:</span>
-              <span id="uk-vibe-display" class="font-bold bg-sky-50 text-sky-800 px-3 py-1.5 rounded-xl inline-block">📚 Kuliah di Cardiff Met & Kangen Awe 💖</span>
-            </div>
+          <div id="uk-clock" class="text-4xl sm:text-5xl font-mono-clock font-bold text-slate-800 tracking-tight">--:--:--</div>
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-slate-400 font-medium">Status Koko:</span>
+            <span id="vibe-cardiff-display" class="font-bold text-sky-700 bg-sky-50 px-3 py-1 rounded-xl">Lagi mikirin Awe Sayang 💭💖</span>
           </div>
         </div>
 
-        <!-- Jakarta Card (Awe Sayang) -->
-        <div class="bg-white/90 border border-rose-100 rounded-3xl p-6 shadow-sm relative overflow-hidden">
-          <div class="flex items-center justify-between mb-3">
+        <!-- Jakarta Clock Card -->
+        <div class="bg-white/90 rounded-3xl p-6 border border-rose-100 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <span class="text-3xl">🇮🇩</span>
               <div>
-                <span class="text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md uppercase">Awe Sayang (Theresia)</span>
-                <h3 class="font-extrabold text-slate-800 text-lg mt-0.5">Jakarta, Indonesia</h3>
+                <h3 class="font-extrabold text-slate-800 text-base sm:text-lg">Awe Sayang • Jakarta, ID</h3>
+                <p id="jkt-date-text" class="text-xs text-slate-400">Waktu Indonesia Barat (WIB)</p>
               </div>
             </div>
-            <div id="jkt-daynight-badge" class="px-3 py-1 rounded-xl bg-slate-100 text-xs font-bold text-slate-700">🌙 Malam</div>
+            <span class="px-2.5 py-1 bg-rose-50 text-rose-700 rounded-full text-xs font-bold">Jakarta</span>
           </div>
-
-          <div id="jkt-clock" class="text-4xl sm:text-5xl font-mono-clock font-bold tracking-tight text-slate-800 my-3">
-            --:--:--
-          </div>
-          <p id="jkt-date" class="text-xs text-slate-400 mb-4">Memuat tanggal...</p>
-
-          <div class="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div>
-              <span class="text-slate-400 block mb-1">Status & Vibe Awe:</span>
-              <span id="jkt-vibe-display" class="font-bold bg-rose-50 text-rose-800 px-3 py-1.5 rounded-xl inline-block">💼 Semangat Beraktivitas & Mikirin Koko 🥰</span>
-            </div>
+          <div id="jkt-clock" class="text-4xl sm:text-5xl font-mono-clock font-bold text-slate-800 tracking-tight">--:--:--</div>
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-slate-400 font-medium">Status Awe:</span>
+            <span id="vibe-jakarta-display" class="font-bold text-rose-700 bg-rose-50 px-3 py-1 rounded-xl">Kangen Kokoocinsayang banget 🥰</span>
           </div>
         </div>
       </div>
 
-      <!-- Status Updater Box -->
-      <div class="bg-white/90 rounded-3xl p-5 border border-rose-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+      <!-- Update Mood & Vibe Bar -->
+      <div class="bg-white/90 p-5 rounded-3xl border border-rose-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
         <div>
-          <h4 class="text-sm font-extrabold text-slate-800">Update Status & Mood Kamu (<span id="active-role-text" class="text-rose-600">Kokoocinsayang</span>)</h4>
-          <p class="text-xs text-slate-500">Pilih status cepat atau ketik pesan singkat biar pasanganmu tahu kabar terbaru:</p>
+          <h4 class="text-sm font-extrabold text-slate-800">Update Kabar & Mood (<span id="active-role-text">Kokoocinsayang (Cardiff 🇬🇧)</span>)</h4>
+          <p class="text-xs text-slate-500">Biar pasanganmu tahu kamu lagi ngapain atau lagi kangen apa hari ini!</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
-          <select id="quick-vibe-select" onchange="applyQuickVibe(this.value)" class="text-xs px-3 py-2.5 border border-rose-200 rounded-xl bg-rose-50/50 text-slate-700 font-semibold focus:outline-none">
-            <option value="">-- Pilih Vibe Cepat --</option>
-            <option value="📚 Lagi Fokus Kuliah / Kerja dulu ya sayang">📚 Lagi Fokus Kuliah / Kerja</option>
-            <option value="🥺 Kangen Berat Pengen Videocall!">🥺 Kangen Berat Pengen Call!</option>
-            <option value="🍜 Lagi Makan Enak, Andai Bareng Kamu">🍜 Lagi Makan, Andai Bareng</option>
-            <option value="😴 Siap-siap Bobo, Mimpiin Kita Ya">😴 Siap-siap Bobo</option>
-            <option value="🎮 Yuk Main Game di Website Kita!">🎮 Yuk Main Game Bareng!</option>
-          </select>
-          <input id="custom-vibe-input" type="text" placeholder="Atau ketik status sendiri..." class="text-xs px-3.5 py-2.5 border border-rose-200 rounded-xl flex-1 sm:w-56 focus:outline-none focus:ring-2 focus:ring-rose-400" />
-          <button onclick="saveCustomVibe()" class="px-4 py-2.5 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl shadow-sm transition">
-            Simpan Status
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <input id="vibe-input" type="text" placeholder="Ketik status/mood kamu..." onkeydown="if(event.key==='Enter') saveCustomVibe()" class="text-xs px-3.5 py-2.5 border border-rose-200 rounded-xl flex-1 sm:w-64 focus:outline-none focus:ring-2 focus:ring-rose-400" />
+          <button onclick="saveCustomVibe()" class="px-4 py-2.5 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl shadow-xs transition">Simpan Mood</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: "JUST US" COUPLE EDITION & GAMES    -->
+    <!-- ========================================== -->
+    <section id="tab-games" class="tab-section hidden space-y-6">
+      <!-- Top Header + Optional Live Sync Room Bar -->
+      <div class="bg-white/95 p-5 rounded-3xl border border-rose-100 shadow-sm space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-[10px] font-extrabold uppercase tracking-wider rounded-full">Edisi Spesial</span>
+              <h2 class="text-lg font-extrabold text-slate-800">💞 Just Us: Kokoocinsayang & Awe Sayang</h2>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">Mainkan berdua sambil videocall atau hubungkan Room Code agar jawaban & sentuhan sinkron otomatis!</p>
+          </div>
+
+          <!-- Compatibility Meter Pill -->
+          <div class="flex items-center gap-3 bg-rose-50/90 border border-rose-200/80 px-4 py-2 rounded-2xl">
+            <div class="text-right">
+              <span class="text-[10px] font-bold text-rose-500 uppercase block">Skor Sehati Kita</span>
+              <span id="justus-compat-score" class="text-base font-extrabold text-slate-800">100% Match 💖</span>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center font-extrabold text-sm shadow-xs" id="justus-streak-badge">
+              🔥 0
+            </div>
+          </div>
+        </div>
+
+        <!-- Live P2P Room Sync Bar (PeerJS) -->
+        <div class="pt-3 border-t border-rose-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="peer-status-dot" class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+            <span class="font-bold text-slate-700">Live Sync Antar-Negara:</span>
+            <span id="peer-my-id" class="font-mono-clock bg-slate-100 px-2.5 py-1 rounded-lg text-rose-600 font-bold select-all">Menyiapkan kode...</span>
+            <button onclick="copyMyRoomCode()" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-lg transition">Salin Kodeku</button>
+          </div>
+          <div class="flex items-center gap-1.5 w-full sm:w-auto">
+            <input id="peer-partner-input" type="text" placeholder="Masukkan Kode Pasangan..." class="px-3 py-1.5 border border-rose-200 rounded-xl text-xs flex-1 sm:w-44 focus:outline-none focus:ring-2 focus:ring-rose-400" />
+            <button onclick="connectToPartnerPeer()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl transition">Hubungkan 🔗</button>
+          </div>
+        </div>
+
+        <!-- Sub-Navigation Pills for Games -->
+        <div class="flex flex-wrap gap-1.5 pt-1">
+          <button onclick="switchGame('justus-quiz')" id="gbtn-justus-quiz" class="game-sub-btn px-3.5 py-2 rounded-xl text-xs font-extrabold bg-rose-500 text-white shadow-sm">💑 1. Just Us: Couple Quiz</button>
+          <button onclick="switchGame('likely')" id="gbtn-likely" class="game-sub-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-50 text-slate-700 hover:bg-rose-100">👉 2. Siapa yang Paling...</button>
+          <button onclick="switchGame('challenges')" id="gbtn-challenges" class="game-sub-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-50 text-slate-700 hover:bg-rose-100">✨ 3. Misi & Tantangan LDR</button>
+          <button onclick="switchGame('thumbkiss')" id="gbtn-thumbkiss" class="game-sub-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-50 text-slate-700 hover:bg-rose-100">🫀 4. Thumb Kiss & Heartbeat</button>
+          <button onclick="switchGame('qna')" id="gbtn-qna" class="game-sub-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-50 text-slate-700 hover:bg-rose-100">🃏 5. Kartu Deep Talk</button>
+          <button onclick="switchGame('classics')" id="gbtn-classics" class="game-sub-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-50 text-slate-700 hover:bg-rose-100">🎲 6. Tic-Tac-Toe, Wordle & Kanvas</button>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- GAME 1: "JUST US" SYNCHRONIZED COUPLE QUIZ (SECRET LOCK MODE)  -->
+      <!-- ============================================================== -->
+      <div id="game-justus-quiz" class="game-panel bg-white/95 p-6 rounded-3xl border border-rose-100 shadow-sm max-w-2xl mx-auto space-y-5">
+        <!-- Category Selector -->
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <button onclick="setJustUsCategory('sweet')" id="jcat-sweet" class="jcat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-rose-500 text-white">🥰 Sweet & Romantic</button>
+          <button onclick="setJustUsCategory('deeptalk')" id="jcat-deeptalk" class="jcat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700">🌙 Deep Talk</button>
+          <button onclick="setJustUsCategory('quirky')" id="jcat-quirky" class="jcat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700">😜 Fun & Quirky</button>
+          <button onclick="setJustUsCategory('future')" id="jcat-future" class="jcat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700">✈️ Future Cardiff-JKT</button>
+          <button onclick="setJustUsCategory('flirty')" id="jcat-flirty" class="jcat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700">🔥 Flirty & Spicy</button>
+        </div>
+
+        <!-- Question Card -->
+        <div class="bg-gradient-to-br from-rose-50 via-white to-pink-50 border-2 border-rose-200 rounded-3xl p-6 text-center shadow-xs space-y-3">
+          <div class="flex items-center justify-between text-[11px] font-extrabold text-rose-500 uppercase tracking-wider">
+            <span id="justus-q-badge">PERTANYAAN #1</span>
+            <span>JUST US • KOKO & AWE</span>
+          </div>
+          <h3 id="justus-q-text" class="text-base sm:text-xl font-extrabold text-slate-800 leading-relaxed py-2">
+            Memuat pertanyaan...
+          </h3>
+
+          <!-- 4 Options Grid -->
+          <div id="justus-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 text-left"></div>
+        </div>
+
+        <!-- Dual Secret Lock Status Pods (Koko & Awe) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Koko Pod -->
+          <div class="p-4 rounded-2xl border border-sky-200 bg-sky-50/50 flex flex-col justify-between space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-sky-800">🇬🇧 Jawaban Kokoocinsayang</span>
+              <span id="koko-lock-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">Belum Kunci</span>
+            </div>
+            <p id="koko-answer-preview" class="text-xs font-bold text-slate-600 italic py-1">Pilih opsi di atas atau ketik jawaban...</p>
+            <button onclick="lockJustUsAnswer('Cardiff')" class="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl shadow-xs transition">
+              🔒 Kunci Jawaban Koko
+            </button>
+          </div>
+
+          <!-- Awe Pod -->
+          <div class="p-4 rounded-2xl border border-rose-200 bg-rose-50/50 flex flex-col justify-between space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-rose-800">🇮🇩 Jawaban Awe Sayang</span>
+              <span id="awe-lock-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">Belum Kunci</span>
+            </div>
+            <p id="awe-answer-preview" class="text-xs font-bold text-slate-600 italic py-1">Pilih opsi di atas atau ketik jawaban...</p>
+            <button onclick="lockJustUsAnswer('Jakarta')" class="w-full py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl shadow-xs transition">
+              🔒 Kunci Jawaban Awe
+            </button>
+          </div>
+        </div>
+
+        <!-- Reveal & Next Controls -->
+        <div id="justus-reveal-banner" class="hidden p-4 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 text-white text-center font-extrabold text-sm shadow-md"></div>
+
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
+          <button onclick="prevJustUsQuestion()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">⬅️ Soal Sebelumnya</button>
+          <button onclick="revealJustUsAnswers()" id="btn-reveal-justus" class="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-extrabold shadow-sm transition">
+            👀 Buka & Bandingkan Jawaban!
           </button>
+          <button onclick="nextJustUsQuestion()" class="px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold shadow-sm">Soal Berikutnya ➡️</button>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- GAME 2: WHO'S MORE LIKELY TO... (SIAPA YANG PALING...)         -->
+      <!-- ============================================================== -->
+      <div id="game-likely" class="game-panel hidden bg-white/95 p-6 rounded-3xl border border-rose-100 shadow-sm max-w-xl mx-auto text-center space-y-5">
+        <span class="text-xs font-extrabold text-rose-600 bg-rose-50 px-3 py-1 rounded-full">👉 Siapa yang Paling... (Who's More Likely To)</span>
+        <div class="p-6 rounded-3xl bg-gradient-to-br from-rose-50 to-amber-50/50 border-2 border-rose-200 shadow-xs">
+          <p id="likely-counter" class="text-[11px] font-bold text-rose-400 uppercase mb-2">SKENARIO #1</p>
+          <h3 id="likely-prompt-text" class="text-base sm:text-xl font-extrabold text-slate-800 leading-relaxed">
+            "Siapa yang paling duluan ketiduran pas kita lagi sleep call malam-malam?"
+          </h3>
+        </div>
+
+        <!-- Vote Buttons for Koko & Awe -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
+          <div class="p-4 rounded-2xl bg-sky-50 border border-sky-200 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-extrabold text-sky-900">🇬🇧 Pilihan Koko:</span>
+              <span id="likely-koko-status" class="text-[10px] font-bold bg-white px-2 py-0.5 rounded-full text-slate-500">Belum pilih</span>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="voteLikely('Cardiff', 'Koko 🇬🇧')" class="flex-1 py-2 bg-white hover:bg-sky-600 hover:text-white text-sky-800 border border-sky-200 rounded-xl text-xs font-bold transition">Koko 🇬🇧</button>
+              <button onclick="voteLikely('Cardiff', 'Awe 🇮🇩')" class="flex-1 py-2 bg-white hover:bg-rose-500 hover:text-white text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition">Awe 🇮🇩</button>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-extrabold text-rose-900">🇮🇩 Pilihan Awe:</span>
+              <span id="likely-awe-status" class="text-[10px] font-bold bg-white px-2 py-0.5 rounded-full text-slate-500">Belum pilih</span>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="voteLikely('Jakarta', 'Koko 🇬🇧')" class="flex-1 py-2 bg-white hover:bg-sky-600 hover:text-white text-sky-800 border border-sky-200 rounded-xl text-xs font-bold transition">Koko 🇬🇧</button>
+              <button onclick="voteLikely('Jakarta', 'Awe 🇮🇩')" class="flex-1 py-2 bg-white hover:bg-rose-500 hover:text-white text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition">Awe 🇮🇩</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="likely-result-box" class="hidden p-4 rounded-2xl bg-rose-100 text-rose-900 text-xs font-extrabold"></div>
+
+        <div class="flex justify-center gap-3">
+          <button onclick="revealLikelyVotes()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-extrabold rounded-xl shadow-xs">Buka Hasil Tuduhan 👀</button>
+          <button onclick="nextLikelyPrompt()" class="px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl shadow-xs">Skenario Berikutnya ➡️</button>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- GAME 3: DAILY LDR CHALLENGES & INTIMACY MISSIONS               -->
+      <!-- ============================================================== -->
+      <div id="game-challenges" class="game-panel hidden bg-white/95 p-6 rounded-3xl border border-rose-100 shadow-sm max-w-2xl mx-auto space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-base font-extrabold text-slate-800">✨ Misi & Tantangan Manis LDR ("Just Us" Dare)</h3>
+            <p class="text-xs text-slate-500">Klik kartu untuk membuka tantangan spontan hari ini dan tandai kalau sudah kalian lakukan berdua!</p>
+          </div>
+          <span id="challenge-done-counter" class="text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-xl">0 / 6 Misi Selesai</span>
+        </div>
+
+        <div id="challenges-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- GAME 4: THUMB KISS & HEARTBEAT TOUCH PAD                       -->
+      <!-- ============================================================== -->
+      <div id="game-thumbkiss" class="game-panel hidden bg-white/95 p-6 rounded-3xl border border-rose-100 shadow-sm max-w-lg mx-auto text-center space-y-5">
+        <div>
+          <span class="text-xs font-extrabold text-rose-600 bg-rose-50 px-3 py-1 rounded-full">🫀 Sentuhan Jarak Jauh (11.720 km)</span>
+          <h3 class="text-base font-extrabold text-slate-800 mt-2">Thumb Kiss & Detak Jantung Koko & Awe</h3>
+          <p class="text-xs text-slate-500">Tempel dan tahan ibu jarimu di lingkaran hati di bawah ini bersama-sama untuk mengirim getaran hangat!</p>
+        </div>
+
+        <div id="thumb-pad"
+             onmousedown="startThumbTouch()"
+             onmouseup="stopThumbTouch()"
+             onmouseleave="stopThumbTouch()"
+             ontouchstart="startThumbTouch(event)"
+             ontouchend="stopThumbTouch()"
+             class="relative w-64 h-64 mx-auto rounded-full bg-gradient-to-tr from-rose-100 via-pink-50 to-rose-200 border-4 border-white shadow-xl flex flex-col items-center justify-center cursor-pointer select-none overflow-hidden touch-none">
+          <div id="thumb-ring-1" class="hidden absolute w-28 h-28 rounded-full border-4 border-rose-400 thumb-pulse-ring"></div>
+          <div id="thumb-ring-2" class="hidden absolute w-40 h-40 rounded-full border-2 border-pink-400 thumb-pulse-ring" style="animation-delay: 0.4s"></div>
+          <div id="thumb-center-icon" class="text-5xl transition-transform duration-300">🫀</div>
+          <p id="thumb-status-label" class="text-xs font-extrabold text-rose-700 mt-3 px-4">Tahan Jari di Sini</p>
+        </div>
+
+        <p id="thumb-partner-msg" class="text-xs font-bold text-slate-500">Ketika kalian menahan bersama, detak jantung akan berdenyut hangat 💖</p>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- GAME 5: HEART-TO-HEART Q&A DECK                                -->
+      <!-- ============================================================== -->
+      <div id="game-qna" class="game-panel hidden bg-white/90 p-6 rounded-3xl border border-rose-100 shadow-sm max-w-xl mx-auto text-center space-y-5">
+        <div class="flex justify-center gap-2">
+          <button onclick="setQnaCategory('romantis')" id="qcat-romantis" class="px-3 py-1.5 rounded-full text-xs font-bold bg-rose-500 text-white">💖 Romantis</button>
+          <button onclick="setQnaCategory('deeptalk')" id="qcat-deeptalk" class="px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700">🌙 Deep Talk LDR</button>
+          <button onclick="setQnaCategory('lucu')" id="qcat-lucu" class="px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700">😂 Lucu & Random</button>
+        </div>
+
+        <div onclick="nextQnaCard()" class="cursor-pointer bg-gradient-to-br from-rose-50 via-white to-pink-50 border-2 border-rose-200 rounded-3xl p-8 min-h-[220px] flex flex-col justify-between shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5">
+          <div class="flex justify-between items-center text-xs font-bold text-rose-400">
+            <span id="qna-badge">KARTU #1</span>
+            <span>Koko 🇬🇧 ❤️ Awe 🇮🇩</span>
+          </div>
+          <p id="qna-question-text" class="text-base sm:text-lg font-extrabold text-slate-800 my-4 leading-relaxed">
+            "Hal kecil apa dari diriku yang paling sering bikin kamu senyum-senyum sendiri waktu lagi kangen di perantauan?"
+          </p>
+          <span class="text-[11px] text-slate-400">✨ Klik kartu atau tombol di bawah untuk pertanyaan berikutnya</span>
+        </div>
+
+        <div class="flex justify-center gap-3">
+          <button onclick="prevQnaCard()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700">⬅️ Sebelumnya</button>
+          <button onclick="nextQnaCard()" class="px-6 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-xs font-bold text-white shadow-sm">Acak Kartu Baru 🎲</button>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- GAME 6: CLASSIC MINI-GAMES (TIC-TAC-TOE, WORDLE, CANVAS, WYR)  -->
+      <!-- ============================================================== -->
+      <div id="game-classics" class="game-panel hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- LOVE TIC-TAC-TOE -->
+          <div class="bg-white/90 p-6 rounded-3xl border border-rose-100 shadow-sm text-center space-y-4">
+            <h3 class="text-base font-extrabold text-slate-800">Love Tic-Tac-Toe: Koko (⭐) vs Awe (💖)</h3>
+            <div class="flex justify-around text-xs font-bold bg-rose-50 p-3 rounded-2xl">
+              <span>🇬🇧 Koko (⭐): <strong id="ttt-score-koko">0</strong></span>
+              <span id="ttt-status-text" class="text-rose-600">Giliran: Awe (💖)</span>
+              <span>🇮🇩 Awe (💖): <strong id="ttt-score-awe">0</strong></span>
+            </div>
+            <div id="ttt-board" class="grid grid-cols-3 gap-2.5 max-w-[260px] mx-auto bg-rose-100 p-3 rounded-3xl"></div>
+            <button onclick="resetTicTacToe()" class="px-5 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl">Main Lagi 🔄</button>
+          </div>
+
+          <!-- COUPLE WORDLE -->
+          <div class="bg-white/90 p-6 rounded-3xl border border-rose-100 shadow-sm text-center space-y-4">
+            <div>
+              <h3 class="text-base font-extrabold text-slate-800">Tebak Kata Cinta (5 Huruf)</h3>
+              <p id="wordle-hint" class="text-xs text-rose-500 font-semibold mt-0.5">Petunjuk: Kata manis yang selalu kita rasakan</p>
+            </div>
+            <div id="wordle-grid" class="space-y-1.5 flex flex-col items-center"></div>
+            <div id="wordle-msg" class="text-xs font-bold text-emerald-600 min-h-[20px]"></div>
+            <div class="flex gap-2 justify-center">
+              <input id="wordle-input" type="text" maxlength="5" placeholder="Ketik 5 huruf..." onkeydown="if(event.key==='Enter') submitWordleGuess()" class="text-center uppercase font-mono-clock font-bold text-sm px-4 py-2 border border-rose-200 rounded-xl w-40 focus:outline-none focus:ring-2 focus:ring-rose-400" />
+              <button onclick="submitWordleGuess()" class="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl">Tebak</button>
+              <button onclick="nextWordleWord()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl">Kata Baru</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SHARED LOVE CANVAS -->
+        <div class="bg-white/90 p-6 rounded-3xl border border-rose-100 shadow-sm space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="text-sm font-extrabold text-slate-800">🎨 Papan Gambar & Tebak Coretan Kita</h3>
+              <p class="text-xs text-slate-500">Gambar sesuatu untuk ditebak pasanganmu atau tulis pesan tangan manis!</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <input type="color" id="draw-color" value="#e11d48" class="w-8 h-8 rounded-lg cursor-pointer border-0" />
+              <select id="draw-size" class="text-xs border border-slate-200 rounded-xl px-2 py-1.5">
+                <option value="3">Tipis</option>
+                <option value="6" selected>Sedang</option>
+                <option value="12">Tebal</option>
+              </select>
+              <button onclick="stampCanvas('💖')" class="px-2.5 py-1.5 bg-rose-50 rounded-lg text-sm">💖</button>
+              <button onclick="stampCanvas('🇬🇧')" class="px-2.5 py-1.5 bg-rose-50 rounded-lg text-sm">🇬🇧</button>
+              <button onclick="stampCanvas('🇮🇩')" class="px-2.5 py-1.5 bg-rose-50 rounded-lg text-sm">🇮🇩</button>
+              <button onclick="clearLoveCanvas()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-xs font-bold rounded-xl">Bersihkan</button>
+              <button onclick="downloadLoveCanvas()" class="px-3 py-1.5 bg-rose-500 text-white text-xs font-bold rounded-xl">Simpan Gambar</button>
+            </div>
+          </div>
+          <div class="border-2 border-rose-100 rounded-2xl overflow-hidden bg-white shadow-inner">
+            <canvas id="love-draw-canvas" width="800" height="340" class="w-full h-[300px] cursor-crosshair touch-none"></canvas>
+          </div>
+        </div>
+
+        <!-- WOULD YOU RATHER -->
+        <div class="bg-white/90 p-6 rounded-3xl border border-rose-100 shadow-sm max-w-xl mx-auto text-center space-y-5">
+          <span class="text-xs font-bold text-rose-500 bg-rose-50 px-3 py-1 rounded-full">Pilih Mana Edisi Koko & Awe</span>
+          <h3 class="text-base font-extrabold text-slate-800">Lebih Pilih Mana Kalau Kita Lagi Bareng?</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <button onclick="pickWyr('A')" id="wyr-btn-a" class="p-5 rounded-2xl border-2 border-rose-200 hover:border-rose-500 bg-rose-50/40 text-xs sm:text-sm font-bold text-slate-800 transition"></button>
+            <button onclick="pickWyr('B')" id="wyr-btn-b" class="p-5 rounded-2xl border-2 border-pink-200 hover:border-pink-500 bg-pink-50/40 text-xs sm:text-sm font-bold text-slate-800 transition"></button>
+          </div>
+          <p id="wyr-result-text" class="text-xs font-bold text-rose-600 min-h-[20px]"></p>
+          <button onclick="nextWyrCard()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl">Pertanyaan Selanjutnya ➡️</button>
         </div>
       </div>
     </section>
@@ -463,116 +758,6 @@
     </section>
 
     <!-- ========================================== -->
-    <!-- TAB 4: 5 LDR MULTIPLAYER GAMES             -->
-    <!-- ========================================== -->
-    <section id="tab-games" class="tab-section hidden space-y-6">
-      <!-- Game Sub-Navigation -->
-      <div class="bg-white/90 p-4 rounded-3xl border border-rose-100 shadow-sm flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 class="text-lg font-extrabold text-slate-800">🎮 Arena Game LDR Koko & Awe</h2>
-          <p class="text-xs text-slate-500">5 permainan seru untuk dimainkan berdua sambil voice call atau videocall!</p>
-        </div>
-        <div class="flex flex-wrap gap-1.5">
-          <button onclick="switchGame('qna')" id="gbtn-qna" class="game-sub-btn px-3 py-2 rounded-xl text-xs font-bold bg-rose-500 text-white">1. Kartu Deep Talk</button>
-          <button onclick="switchGame('ttt')" id="gbtn-ttt" class="game-sub-btn px-3 py-2 rounded-xl text-xs font-bold bg-rose-50 text-slate-700">2. Love Tic-Tac-Toe</button>
-          <button onclick="switchGame('wordle')" id="gbtn-wordle" class="game-sub-btn px-3 py-2 rounded-xl text-xs font-bold bg-rose-50 text-slate-700">3. Tebak Kata Cinta</button>
-          <button onclick="switchGame('canvas')" id="gbtn-canvas" class="game-sub-btn px-3 py-2 rounded-xl text-xs font-bold bg-rose-50 text-slate-700">4. Kanvas Gambar</button>
-          <button onclick="switchGame('wyr')" id="gbtn-wyr" class="game-sub-btn px-3 py-2 rounded-xl text-xs font-bold bg-rose-50 text-slate-700">5. Pilih Mana?</button>
-        </div>
-      </div>
-
-      <!-- GAME 1: HEART-TO-HEART Q&A DECK -->
-      <div id="game-qna" class="game-panel bg-white/90 p-6 rounded-3xl border border-rose-100 shadow-sm max-w-xl mx-auto text-center space-y-5">
-        <div class="flex justify-center gap-2">
-          <button onclick="setQnaCategory('romantis')" id="qcat-romantis" class="px-3 py-1.5 rounded-full text-xs font-bold bg-rose-500 text-white">💖 Romantis</button>
-          <button onclick="setQnaCategory('deeptalk')" id="qcat-deeptalk" class="px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700">🌙 Deep Talk LDR</button>
-          <button onclick="setQnaCategory('lucu')" id="qcat-lucu" class="px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700">😂 Lucu & Random</button>
-        </div>
-
-        <div onclick="nextQnaCard()" class="cursor-pointer bg-gradient-to-br from-rose-50 via-white to-pink-50 border-2 border-rose-200 rounded-3xl p-8 min-h-[220px] flex flex-col justify-between shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5">
-          <div class="flex justify-between items-center text-xs font-bold text-rose-400">
-            <span id="qna-badge">KARTU #1</span>
-            <span>Koko 🇬🇧 ❤️ Awe 🇮🇩</span>
-          </div>
-          <p id="qna-question-text" class="text-base sm:text-lg font-extrabold text-slate-800 my-4 leading-relaxed">
-            "Hal kecil apa dari diriku yang paling sering bikin kamu senyum-senyum sendiri waktu lagi kangen di perantauan?"
-          </p>
-          <span class="text-[11px] text-slate-400">✨ Klik kartu atau tombol di bawah untuk pertanyaan berikutnya</span>
-        </div>
-
-        <div class="flex justify-center gap-3">
-          <button onclick="prevQnaCard()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700">⬅️ Sebelumnya</button>
-          <button onclick="nextQnaCard()" class="px-6 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-xs font-bold text-white shadow-sm">Acak Kartu Baru 🎲</button>
-        </div>
-      </div>
-
-      <!-- GAME 2: LOVE TIC-TAC-TOE -->
-      <div id="game-ttt" class="game-panel hidden bg-white/90 p-6 rounded-3xl border border-rose-100 shadow-sm max-w-md mx-auto text-center space-y-4">
-        <h3 class="text-base font-extrabold text-slate-800">Love Tic-Tac-Toe: Koko (⭐) vs Awe (💖)</h3>
-        <div class="flex justify-around text-xs font-bold bg-rose-50 p-3 rounded-2xl">
-          <span>🇬🇧 Koko (⭐): <strong id="ttt-score-koko">0</strong></span>
-          <span id="ttt-status-text" class="text-rose-600">Giliran: Awe (💖)</span>
-          <span>🇮🇩 Awe (💖): <strong id="ttt-score-awe">0</strong></span>
-        </div>
-        <div id="ttt-board" class="grid grid-cols-3 gap-2.5 max-w-[260px] mx-auto bg-rose-100 p-3 rounded-3xl"></div>
-        <button onclick="resetTicTacToe()" class="px-5 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl">Main Lagi 🔄</button>
-      </div>
-
-      <!-- GAME 3: COUPLE WORDLE (TEBAK KATA CINTA) -->
-      <div id="game-wordle" class="game-panel hidden bg-white/90 p-6 rounded-3xl border border-rose-100 shadow-sm max-w-md mx-auto text-center space-y-4">
-        <div>
-          <h3 class="text-base font-extrabold text-slate-800">Tebak Kata Cinta (5 Huruf)</h3>
-          <p id="wordle-hint" class="text-xs text-rose-500 font-semibold mt-0.5">Petunjuk: Kata manis yang selalu kita rasakan</p>
-        </div>
-        <div id="wordle-grid" class="space-y-1.5 flex flex-col items-center"></div>
-        <div id="wordle-msg" class="text-xs font-bold text-emerald-600 min-h-[20px]"></div>
-        <div class="flex gap-2 justify-center">
-          <input id="wordle-input" type="text" maxlength="5" placeholder="Ketik 5 huruf..." onkeydown="if(event.key==='Enter') submitWordleGuess()" class="text-center uppercase font-mono-clock font-bold text-sm px-4 py-2 border border-rose-200 rounded-xl w-40 focus:outline-none focus:ring-2 focus:ring-rose-400" />
-          <button onclick="submitWordleGuess()" class="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl">Tebak</button>
-          <button onclick="nextWordleWord()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl">Kata Baru</button>
-        </div>
-      </div>
-
-      <!-- GAME 4: SHARED LOVE CANVAS -->
-      <div id="game-canvas" class="game-panel hidden bg-white/90 p-6 rounded-3xl border border-rose-100 shadow-sm space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h3 class="text-sm font-extrabold text-slate-800">🎨 Papan Gambar & Tebak Coretan Kita</h3>
-            <p class="text-xs text-slate-500">Gambar sesuatu untuk ditebak pasanganmu atau tulis pesan tangan manis!</p>
-          </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <input type="color" id="draw-color" value="#e11d48" class="w-8 h-8 rounded-lg cursor-pointer border-0" />
-            <select id="draw-size" class="text-xs border border-slate-200 rounded-xl px-2 py-1.5">
-              <option value="3">Tipis</option>
-              <option value="6" selected>Sedang</option>
-              <option value="12">Tebal</option>
-            </select>
-            <button onclick="stampCanvas('💖')" class="px-2.5 py-1.5 bg-rose-50 rounded-lg text-sm">💖</button>
-            <button onclick="stampCanvas('🇬🇧')" class="px-2.5 py-1.5 bg-rose-50 rounded-lg text-sm">🇬🇧</button>
-            <button onclick="stampCanvas('🇮🇩')" class="px-2.5 py-1.5 bg-rose-50 rounded-lg text-sm">🇮🇩</button>
-            <button onclick="clearLoveCanvas()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-xs font-bold rounded-xl">Bersihkan</button>
-            <button onclick="downloadLoveCanvas()" class="px-3 py-1.5 bg-rose-500 text-white text-xs font-bold rounded-xl">Simpan Gambar</button>
-          </div>
-        </div>
-        <div class="border-2 border-rose-100 rounded-2xl overflow-hidden bg-white shadow-inner">
-          <canvas id="love-draw-canvas" width="800" height="380" class="w-full h-[340px] cursor-crosshair touch-none"></canvas>
-        </div>
-      </div>
-
-      <!-- GAME 5: WOULD YOU RATHER (PILIH MANA) -->
-      <div id="game-wyr" class="game-panel hidden bg-white/90 p-6 rounded-3xl border border-rose-100 shadow-sm max-w-xl mx-auto text-center space-y-5">
-        <span class="text-xs font-bold text-rose-500 bg-rose-50 px-3 py-1 rounded-full">Edisi Koko & Awe</span>
-        <h3 class="text-base font-extrabold text-slate-800">Lebih Pilih Mana Kalau Kita Lagi Bareng?</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <button onclick="pickWyr('A')" id="wyr-btn-a" class="p-5 rounded-2xl border-2 border-rose-200 hover:border-rose-500 bg-rose-50/40 text-xs sm:text-sm font-bold text-slate-800 transition"></button>
-          <button onclick="pickWyr('B')" id="wyr-btn-b" class="p-5 rounded-2xl border-2 border-pink-200 hover:border-pink-500 bg-pink-50/40 text-xs sm:text-sm font-bold text-slate-800 transition"></button>
-        </div>
-        <p id="wyr-result-text" class="text-xs font-bold text-rose-600 min-h-[20px]"></p>
-        <button onclick="nextWyrCard()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl">Pertanyaan Selanjutnya ➡️</button>
-      </div>
-    </section>
-
-    <!-- ========================================== -->
     <!-- TAB 5: LOVE CAPSULES & STICKY NOTES        -->
     <!-- ========================================== -->
     <section id="tab-capsules" class="tab-section hidden space-y-8">
@@ -629,6 +814,10 @@
       startClocks();
       loadSavedVibes();
       initPhotoboothDefaultPoses();
+      initJustUsQuiz();
+      initLikelyGame();
+      initChallengesGame();
+      initPeerSync();
       initTicTacToe();
       initWordle();
       initLoveCanvas();
@@ -640,7 +829,8 @@
     // --- 2. TAB & ROLE SWITCHING ---
     function switchTab(tabId) {
       document.querySelectorAll('.tab-section').forEach(el => el.classList.add('hidden'));
-      document.getElementById('tab-' + tabId).classList.remove('hidden');
+      const target = document.getElementById('tab-' + tabId);
+      if (target) target.classList.remove('hidden');
 
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.className = 'tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all text-slate-600 hover:bg-rose-100/60';
@@ -672,6 +862,7 @@
     // --- 3. FLOATING HEARTS & LO-FI SYNTHESIZER ---
     function sendHeartBurst(emoji = '💖') {
       const container = document.getElementById('floating-hearts-container');
+      if (!container) return;
       for (let i = 0; i < 7; i++) {
         const span = document.createElement('div');
         span.className = 'floating-heart absolute bottom-4 select-none drop-shadow';
@@ -688,168 +879,146 @@
     let lofiInterval = null;
     let isLofiPlaying = false;
 
-    function playChord(notes, duration) {
-      if (!audioCtx) return;
-      const now = audioCtx.currentTime;
-      notes.forEach(freq => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        const filter = audioCtx.createBiquadFilter();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, now);
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(720, now);
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.linearRampToValueAtTime(0.035, now + 0.15);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now);
-        osc.stop(now + duration);
-      });
-    }
-
     function toggleLoFiMusic() {
-      const btn = document.getElementById('bgm-btn');
       const label = document.getElementById('bgm-label');
-      if (!audioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContextClass();
-      }
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-
+      const btn = document.getElementById('bgm-btn');
       if (isLofiPlaying) {
         clearInterval(lofiInterval);
         isLofiPlaying = false;
-        label.textContent = 'Putar Lo-Fi';
-        btn.className = 'px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-rose-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-all';
-      } else {
-        isLofiPlaying = true;
-        label.textContent = 'Lo-Fi Aktif 🎵';
-        btn.className = 'px-3 py-2 rounded-xl border border-rose-500 bg-rose-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm';
-        const chords = [
-          [261.63, 329.63, 392.00, 493.88],
-          [220.00, 261.63, 329.63, 392.00],
-          [174.61, 220.00, 261.63, 349.23],
-          [196.00, 246.94, 293.66, 392.00]
-        ];
-        let step = 0;
-        playChord(chords[0], 3.6);
-        lofiInterval = setInterval(() => {
-          step = (step + 1) % chords.length;
-          playChord(chords[step], 3.6);
-        }, 3800);
+        if (label) label.textContent = 'Putar Lo-Fi';
+        if (btn) btn.className = 'px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-rose-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-all';
+        return;
       }
+
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!audioCtx) audioCtx = new AudioContextClass();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      const chords = [
+        [261.63, 329.63, 392.00, 493.88],
+        [220.00, 261.63, 329.63, 392.00],
+        [174.61, 220.00, 261.63, 329.63],
+        [196.00, 246.94, 293.66, 392.00]
+      ];
+      let step = 0;
+      const playWarmChord = (freqs) => {
+        const now = audioCtx.currentTime;
+        freqs.forEach(f => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          const filter = audioCtx.createBiquadFilter();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(f, now);
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(720, now);
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.035, now + 0.15);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.6);
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 3.6);
+        });
+      };
+
+      playWarmChord(chords[0]);
+      lofiInterval = setInterval(() => {
+        step = (step + 1) % chords.length;
+        playWarmChord(chords[step]);
+      }, 3800);
+
+      isLofiPlaying = true;
+      if (label) label.textContent = 'Lo-Fi Aktif 🎵';
+      if (btn) btn.className = 'px-3 py-2 rounded-xl border border-rose-500 bg-rose-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm';
     }
 
-    // --- 4. DUAL CLOCKS & COUNTERS ---
+    // --- 4. DUAL CLOCKS & VIBE UPDATES ---
     function startClocks() {
       const update = () => {
         const now = new Date();
-        // UK Time
-        const ukTimeStr = now.toLocaleTimeString('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const ukDateStr = now.toLocaleDateString('id-ID', { timeZone: 'Europe/London', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-        const ukHour = parseInt(now.toLocaleTimeString('en-GB', { timeZone: 'Europe/London', hour: '2-digit', hour12: false }), 10);
+        const ukStr = now.toLocaleTimeString('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const jktStr = now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const ukDate = now.toLocaleDateString('id-ID', { timeZone: 'Europe/London', weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+        const jktDate = now.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
 
-        // Jakarta Time
-        const jktTimeStr = now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const jktDateStr = now.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-        const jktHour = parseInt(now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Jakarta', hour: '2-digit', hour12: false }), 10);
+        const ukEl = document.getElementById('uk-clock');
+        const jktEl = document.getElementById('jkt-clock');
+        if (ukEl) ukEl.textContent = ukStr;
+        if (jktEl) jktEl.textContent = jktStr;
 
-        document.getElementById('uk-clock').textContent = ukTimeStr;
-        document.getElementById('uk-date').textContent = ukDateStr + ' (Waktu Cardiff)';
-        document.getElementById('uk-daynight-badge').textContent = (ukHour >= 6 && ukHour < 18) ? '☀️ Siang di UK' : '🌙 Malam di UK';
+        const ukDateEl = document.getElementById('uk-date-text');
+        const jktDateEl = document.getElementById('jkt-date-text');
+        if (ukDateEl) ukDateEl.textContent = ukDate + ' • Waktu Cardiff';
+        if (jktDateEl) jktDateEl.textContent = jktDate + ' • Waktu Jakarta (WIB)';
 
-        document.getElementById('jkt-clock').textContent = jktTimeStr;
-        document.getElementById('jkt-date').textContent = jktDateStr + ' (WIB Jakarta)';
-        document.getElementById('jkt-daynight-badge').textContent = (jktHour >= 6 && jktHour < 18) ? '☀️ Siang di JKT' : '🌙 Malam di JKT';
-
-        // Days Counters
         const diffTogether = Math.max(0, Math.floor((now - anniversaryDate) / (1000 * 60 * 60 * 24)));
         const diffReunion = Math.max(0, Math.ceil((reunionDate - now) / (1000 * 60 * 60 * 24)));
-        document.getElementById('days-together-count').textContent = diffTogether.toLocaleString('id-ID');
-        document.getElementById('days-reunion-count').textContent = diffReunion.toLocaleString('id-ID');
+        const dtEl = document.getElementById('days-together-count');
+        const drEl = document.getElementById('days-reunion-count');
+        if (dtEl) dtEl.textContent = diffTogether;
+        if (drEl) drEl.textContent = diffReunion;
       };
       update();
       setInterval(update, 1000);
     }
 
-    function promptEditDates() {
-      const newAnniv = prompt('Masukkan Tanggal Jadian (Format YYYY-MM-DD):', anniversaryDate.toISOString().slice(0, 10));
-      if (newAnniv && !isNaN(new Date(newAnniv))) {
-        anniversaryDate = new Date(newAnniv);
-        localStorage.setItem('ldr_anniv', anniversaryDate.toISOString());
-      }
-      const newReunion = prompt('Masukkan Target Tanggal Ketemu Berikutnya (Format YYYY-MM-DD):', reunionDate.toISOString().slice(0, 10));
-      if (newReunion && !isNaN(new Date(newReunion))) {
-        reunionDate = new Date(newReunion);
-        localStorage.setItem('ldr_reunion', reunionDate.toISOString());
-      }
-    }
-
     function loadSavedVibes() {
-      const ukVibe = localStorage.getItem('ldr_vibe_uk');
-      const jktVibe = localStorage.getItem('ldr_vibe_jkt');
-      if (ukVibe) document.getElementById('uk-vibe-display').textContent = ukVibe;
-      if (jktVibe) document.getElementById('jkt-vibe-display').textContent = jktVibe;
-    }
-
-    function applyQuickVibe(val) {
-      if (!val) return;
-      updateVibeForRole(val);
+      const vc = localStorage.getItem('ldr_vibe_cardiff');
+      const vj = localStorage.getItem('ldr_vibe_jakarta');
+      if (vc && document.getElementById('vibe-cardiff-display')) {
+        document.getElementById('vibe-cardiff-display').textContent = vc;
+      }
+      if (vj && document.getElementById('vibe-jakarta-display')) {
+        document.getElementById('vibe-jakarta-display').textContent = vj;
+      }
     }
 
     function saveCustomVibe() {
-      const input = document.getElementById('custom-vibe-input');
-      if (!input.value.trim()) return;
-      updateVibeForRole(input.value.trim());
-      input.value = '';
-    }
-
-    function updateVibeForRole(text) {
+      const input = document.getElementById('vibe-input');
+      if (!input || !input.value.trim()) return;
+      const val = input.value.trim();
       if (currentRole === 'Cardiff') {
-        document.getElementById('uk-vibe-display').textContent = text;
-        localStorage.setItem('ldr_vibe_uk', text);
+        localStorage.setItem('ldr_vibe_cardiff', val);
+        document.getElementById('vibe-cardiff-display').textContent = val;
       } else {
-        document.getElementById('jkt-vibe-display').textContent = text;
-        localStorage.setItem('ldr_vibe_jkt', text);
+        localStorage.setItem('ldr_vibe_jakarta', val);
+        document.getElementById('vibe-jakarta-display').textContent = val;
       }
+      input.value = '';
       sendHeartBurst('✨');
     }
 
     // --- 5. KOREAN 4-CUT PHOTOBOOTH ---
     let boothStream = null;
-    let boothSnaps = [];
+    let boothPoses = [];
     let boothFilter = 'none';
-    let boothBgColor = '#fdf2f8';
-    let boothTextColor = '#9d174d';
+    let boothFrameBg = '#fdf2f8';
+    let boothFrameText = '#9d174d';
 
     function initPhotoboothDefaultPoses() {
-      const labels = [
-        { title: 'Koko 🇬🇧 & Awe 🇮🇩', sub: 'Pose #1: Senyum Manis 🥰', bg: '#ffe4e6' },
-        { title: '11.720 KM Tetap Dekat', sub: 'Pose #2: Finger Heart 🫰', bg: '#fce7f3' },
-        { title: 'Cardiff ↔ Jakarta', sub: 'Pose #3: Gaya Bebas ✌️', bg: '#fef3c7' },
-        { title: 'Forever & Always', sub: 'Pose #4: Peluk Jauh 🤗', bg: '#ede9fe' }
-      ];
-      boothSnaps = labels.map(item => createCutePoseDataUrl(item.title, item.sub, item.bg));
+      boothPoses = [];
+      for (let i = 0; i < 4; i++) {
+        boothPoses.push(createCutePlaceholderPose(i + 1));
+      }
       renderStripPreview();
     }
 
-    function createCutePoseDataUrl(title, sub, bg) {
+    function createCutePlaceholderPose(num) {
       const c = document.createElement('canvas');
       c.width = 400;
       c.height = 300;
       const ctx = c.getContext('2d');
-      ctx.fillStyle = bg;
+      const grads = ['#ffe4e6', '#fce7f3', '#fef3c7', '#e0f2fe'];
+      ctx.fillStyle = grads[(num - 1) % grads.length];
       ctx.fillRect(0, 0, 400, 300);
       ctx.fillStyle = '#be185d';
       ctx.font = 'bold 22px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(title, 200, 135);
-      ctx.fillStyle = '#475569';
-      ctx.font = 'bold 16px sans-serif';
-      ctx.fillText(sub, 200, 175);
+      ctx.fillText(`Pose Manis #${num} 📸`, 200, 135);
+      ctx.font = '15px sans-serif';
+      ctx.fillStyle = '#64748b';
+      ctx.fillText('Kokoocinsayang 🇬🇧 ❤️ Awe Sayang 🇮🇩', 200, 175);
       return c.toDataURL('image/png');
     }
 
@@ -864,160 +1033,156 @@
         video.classList.add('hidden');
         placeholder.classList.remove('hidden');
         btn.textContent = '🎥 Nyalakan Kamera';
-      } else {
-        try {
-          boothStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-          video.srcObject = boothStream;
-          video.classList.remove('hidden');
-          placeholder.classList.add('hidden');
-          btn.textContent = '⏹️ Matikan Kamera';
-          boothSnaps = [];
-          updatePoseCounter();
-        } catch (err) {
-          alert('Kamera tidak dapat diakses di perangkat ini. Kamu tetap bisa memakai tombol "Upload Foto" atau generator pose lucu!');
-        }
+        return;
+      }
+
+      try {
+        boothStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        video.srcObject = boothStream;
+        video.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        btn.textContent = '⏹️ Matikan Kamera';
+      } catch (e) {
+        sendHeartBurst('📸');
       }
     }
 
-    function setBoothFilter(filterStr) {
-      boothFilter = filterStr;
-      document.getElementById('booth-video').style.filter = filterStr;
-    }
-
-    function setBoothFrame(bg, text) {
-      boothBgColor = bg;
-      boothTextColor = text;
+    function setBoothFilter(filterCss) {
+      boothFilter = filterCss;
+      const video = document.getElementById('booth-video');
+      if (video) video.style.filter = filterCss;
       renderStripPreview();
     }
 
-    function updatePoseCounter() {
-      const nextNum = Math.min(4, boothSnaps.length + 1);
-      document.getElementById('pose-counter-btn').textContent = nextNum;
+    function setBoothFrame(bgHex, textHex) {
+      boothFrameBg = bgHex;
+      boothFrameText = textHex;
+      renderStripPreview();
     }
 
-    function captureNextPose(immediate = false) {
-      if (boothSnaps.length >= 4) boothSnaps = [];
-      if (immediate) {
-        snapCurrentFrame();
-        return;
-      }
+    let currentPoseSlot = 0;
+    function captureNextPose(instant = false) {
       const overlay = document.getElementById('booth-countdown');
       const numEl = document.getElementById('booth-countdown-num');
-      overlay.classList.remove('hidden');
+
+      const doSnap = () => {
+        const video = document.getElementById('booth-video');
+        const c = document.createElement('canvas');
+        c.width = 400;
+        c.height = 300;
+        const ctx = c.getContext('2d');
+        if (boothStream && video.videoWidth) {
+          ctx.filter = boothFilter;
+          ctx.translate(c.width, 0);
+          ctx.scale(-1, 1);
+          ctx.drawImage(video, 0, 0, c.width, c.height);
+          boothPoses[currentPoseSlot] = c.toDataURL('image/png');
+        } else {
+          boothPoses[currentPoseSlot] = createCutePlaceholderPose(currentPoseSlot + 1);
+        }
+        currentPoseSlot = (currentPoseSlot + 1) % 4;
+        const counterBtn = document.getElementById('pose-counter-btn');
+        if (counterBtn) counterBtn.textContent = currentPoseSlot + 1;
+        renderStripPreview();
+        sendHeartBurst('📸');
+      };
+
+      if (instant) {
+        doSnap();
+        return;
+      }
+
       let count = 3;
+      overlay.classList.remove('hidden');
       numEl.textContent = count;
       const timer = setInterval(() => {
         count--;
         if (count <= 0) {
           clearInterval(timer);
           overlay.classList.add('hidden');
-          snapCurrentFrame();
+          doSnap();
         } else {
           numEl.textContent = count;
         }
-      }, 900);
-    }
-
-    function snapCurrentFrame() {
-      const video = document.getElementById('booth-video');
-      const c = document.createElement('canvas');
-      c.width = 400;
-      c.height = 300;
-      const ctx = c.getContext('2d');
-
-      if (boothStream && video.videoWidth) {
-        ctx.filter = boothFilter;
-        ctx.translate(400, 0);
-        ctx.scale(-1, 1);
-        ctx.drawImage(video, 0, 0, 400, 300);
-      } else {
-        const idx = boothSnaps.length + 1;
-        const colors = ['#ffe4e6', '#fce7f3', '#fef3c7', '#e0e7ff'];
-        ctx.fillStyle = colors[(idx - 1) % 4];
-        ctx.fillRect(0, 0, 400, 300);
-        ctx.fillStyle = '#be185d';
-        ctx.font = 'bold 22px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(`Pose Manis #${idx} 💖`, 200, 140);
-        ctx.font = '15px sans-serif';
-        ctx.fillText('Kokoocinsayang & Awe Sayang', 200, 175);
-      }
-      boothSnaps.push(c.toDataURL('image/png'));
-      updatePoseCounter();
-      renderStripPreview();
+      }, 850);
     }
 
     function autoShoot4Poses() {
-      boothSnaps = [];
       let shot = 0;
-      const shootNext = () => {
-        if (shot < 4) {
-          shot++;
-          captureNextPose(false);
-          setTimeout(shootNext, 3400);
-        }
+      const next = () => {
+        if (shot >= 4) return;
+        captureNextPose(true);
+        shot++;
+        setTimeout(next, 600);
       };
-      shootNext();
+      next();
     }
 
     function handleUploadPhotoToSlot(e) {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = function(evt) {
-        if (boothSnaps.length >= 4) boothSnaps.shift();
-        boothSnaps.push(evt.target.result);
-        updatePoseCounter();
+      reader.onload = (ev) => {
+        boothPoses[currentPoseSlot] = ev.target.result;
+        currentPoseSlot = (currentPoseSlot + 1) % 4;
+        document.getElementById('pose-counter-btn').textContent = currentPoseSlot + 1;
         renderStripPreview();
       };
       reader.readAsDataURL(file);
     }
 
     function resetPhotoboothStrip() {
+      currentPoseSlot = 0;
+      document.getElementById('pose-counter-btn').textContent = '1';
       initPhotoboothDefaultPoses();
-      updatePoseCounter();
     }
 
     function renderStripPreview() {
       const canvas = document.getElementById('photobooth-canvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      ctx.fillStyle = boothBgColor;
+      ctx.fillStyle = boothFrameBg;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Header
-      ctx.fillStyle = boothTextColor;
-      ctx.font = 'bold 14px monospace';
+      ctx.fillStyle = boothFrameText;
+      ctx.font = 'bold 15px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('✨ RUANG KITA PHOTOBOX ✨', canvas.width / 2, 34);
-      ctx.font = '11px sans-serif';
+      ctx.fillText('✨ RUANG KITA • LIFE4CUTS ✨', canvas.width / 2, 34);
+      ctx.font = '11px monospace';
       ctx.fillText('CARDIFF 🇬🇧 ↔ JAKARTA 🇮🇩 • 11,720 KM', canvas.width / 2, 52);
 
-      const slotW = 310;
-      const slotH = 205;
-      const startX = 25;
+      const itemW = 312;
+      const itemH = 205;
+      const startX = 24;
       const startY = 68;
       const gap = 14;
 
-      boothSnaps.slice(0, 4).forEach((src, idx) => {
+      let loaded = 0;
+      boothPoses.forEach((src, idx) => {
         const img = new Image();
         img.onload = () => {
-          const y = startY + idx * (slotH + gap);
-          ctx.drawImage(img, startX, y, slotW, slotH);
+          const y = startY + idx * (itemH + gap);
+          ctx.save();
+          ctx.filter = boothFilter;
+          ctx.drawImage(img, startX, y, itemW, itemH);
+          ctx.restore();
           ctx.strokeStyle = 'rgba(0,0,0,0.08)';
           ctx.lineWidth = 2;
-          ctx.strokeRect(startX, y, slotW, slotH);
+          ctx.strokeRect(startX, y, itemW, itemH);
+
+          loaded++;
+          if (loaded === 4) {
+            const caption = document.getElementById('booth-caption-input')?.value || 'Kokoocinsayang ❤️ Awe Sayang';
+            ctx.fillStyle = boothFrameText;
+            ctx.font = 'bold 14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(caption, canvas.width / 2, 965);
+            ctx.font = '10px monospace';
+            ctx.fillText(new Date().toLocaleDateString('id-ID') + ' • FOREVER TOGETHER', canvas.width / 2, 990);
+          }
         };
         img.src = src;
       });
-
-      // Footer
-      const caption = document.getElementById('booth-caption-input')?.value || 'Kokoocinsayang ❤️ Awe Sayang';
-      ctx.fillStyle = boothTextColor;
-      ctx.font = 'bold 14px sans-serif';
-      ctx.fillText(caption, canvas.width / 2, 965);
-      ctx.font = '11px monospace';
-      ctx.fillText(new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }), canvas.width / 2, 988);
     }
 
     function downloadPhotoStrip() {
@@ -1026,111 +1191,548 @@
       link.download = `Photobooth_Koko_Awe_${Date.now()}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
-      sendHeartBurst('📸');
     }
 
     // --- 6. WATCH PARTY & SCREEN SHARE ---
     let screenStream = null;
     let watchCamStream = null;
 
+    function loadYouTubeVideo() {
+      const url = document.getElementById('yt-url-input').value.trim();
+      const match = url.match(/(?:v=|youtu\.be\/|embed\/)([^#&?]{11})/);
+      if (match && match[1]) {
+        setYouTubeId(match[1]);
+      }
+    }
+
+    function setYouTubeId(id) {
+      const iframe = document.getElementById('youtube-iframe');
+      const screenVideo = document.getElementById('screenshare-video');
+      screenVideo.classList.add('hidden');
+      iframe.classList.remove('hidden');
+      iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+    }
+
     async function toggleScreenShare() {
-      const video = document.getElementById('screenshare-video');
-      const yt = document.getElementById('youtube-iframe');
+      const screenVideo = document.getElementById('screenshare-video');
+      const iframe = document.getElementById('youtube-iframe');
       const btn = document.getElementById('btn-screenshare');
 
       if (screenStream) {
         screenStream.getTracks().forEach(t => t.stop());
         screenStream = null;
-        video.classList.add('hidden');
-        yt.classList.remove('hidden');
+        screenVideo.classList.add('hidden');
+        iframe.classList.remove('hidden');
         btn.textContent = '🖥️ Mulai Share Screen';
-      } else {
-        try {
-          screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
-          video.srcObject = screenStream;
-          video.classList.remove('hidden');
-          yt.classList.add('hidden');
-          btn.textContent = '⏹️ Hentikan Share Screen';
-          screenStream.getVideoTracks()[0].onended = () => {
-            screenStream = null;
-            video.classList.add('hidden');
-            yt.classList.remove('hidden');
-            btn.textContent = '🖥️ Mulai Share Screen';
-          };
-        } catch (err) {
-          console.log('Share screen dibatalkan.');
-        }
+        return;
+      }
+
+      try {
+        screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+        screenVideo.srcObject = screenStream;
+        iframe.classList.add('hidden');
+        screenVideo.classList.remove('hidden');
+        btn.textContent = '⏹️ Hentikan Share Screen';
+        screenStream.getVideoTracks()[0].onended = () => {
+          screenStream = null;
+          screenVideo.classList.add('hidden');
+          iframe.classList.remove('hidden');
+          btn.textContent = '🖥️ Mulai Share Screen';
+        };
+      } catch (e) {
+        console.log('Screen share dibatalkan');
       }
     }
 
     async function toggleWatchWebcam() {
-      const video = document.getElementById('watch-webcam-video');
+      const v = document.getElementById('watch-webcam-video');
       const ph = document.getElementById('watch-webcam-placeholder');
       const btn = document.getElementById('btn-watchcam');
 
       if (watchCamStream) {
         watchCamStream.getTracks().forEach(t => t.stop());
         watchCamStream = null;
-        video.classList.add('hidden');
+        v.classList.add('hidden');
         ph.classList.remove('hidden');
         btn.textContent = '📹 Nyalakan Kamera Call';
-      } else {
-        try {
-          watchCamStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-          video.srcObject = watchCamStream;
-          video.classList.remove('hidden');
-          ph.classList.add('hidden');
-          btn.textContent = '⏹️ Matikan Kamera Call';
-        } catch (err) {
-          alert('Tidak dapat mengakses kamera.');
-        }
+        return;
       }
-    }
 
-    function loadYouTubeVideo() {
-      const url = document.getElementById('yt-url-input').value.trim();
-      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-      const match = url.match(regExp);
-      if (match && match[2].length === 11) {
-        setYouTubeId(match[2]);
-      } else {
-        alert('Masukkan link YouTube yang valid ya sayang!');
+      try {
+        watchCamStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        v.srcObject = watchCamStream;
+        v.classList.remove('hidden');
+        ph.classList.add('hidden');
+        btn.textContent = '⏹️ Matikan Kamera Call';
+      } catch (e) {
+        sendHeartBurst('🥰');
       }
-    }
-
-    function setYouTubeId(id) {
-      const yt = document.getElementById('youtube-iframe');
-      const video = document.getElementById('screenshare-video');
-      video.classList.add('hidden');
-      yt.classList.remove('hidden');
-      yt.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
     }
 
     function sendWatchChat() {
       const input = document.getElementById('watch-chat-input');
       const box = document.getElementById('watch-chat-box');
       if (!input.value.trim()) return;
-      const sender = currentRole === 'Cardiff' ? 'Kokoocinsayang 🇬🇧' : 'Awe Sayang 🇮🇩';
-      const color = currentRole === 'Cardiff' ? 'text-sky-600' : 'text-rose-600';
       const div = document.createElement('div');
       div.className = 'bg-white p-2.5 rounded-xl border border-rose-100';
-      div.innerHTML = `<span class="font-bold ${color}">${sender}:</span> ${input.value}`;
+      const sender = currentRole === 'Cardiff'
+        ? '<span class="font-bold text-sky-600">Kokoocinsayang:</span> '
+        : '<span class="font-bold text-rose-600">Awe Sayang:</span> ';
+      div.innerHTML = sender + input.value.trim();
       box.appendChild(div);
       box.scrollTop = box.scrollHeight;
       input.value = '';
     }
 
-    // --- 7. FIVE LDR GAMES ---
+    // --- 7. "JUST US" COUPLE EDITION & LDR GAMES ---
     function switchGame(gameKey) {
       document.querySelectorAll('.game-panel').forEach(p => p.classList.add('hidden'));
-      document.getElementById('game-' + gameKey).classList.remove('hidden');
+      const target = document.getElementById('game-' + gameKey);
+      if (target) target.classList.remove('hidden');
       document.querySelectorAll('.game-sub-btn').forEach(b => {
-        b.className = 'game-sub-btn px-3 py-2 rounded-xl text-xs font-bold bg-rose-50 text-slate-700 hover:bg-rose-100';
+        b.className = 'game-sub-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-50 text-slate-700 hover:bg-rose-100';
       });
-      document.getElementById('gbtn-' + gameKey).className = 'game-sub-btn px-3 py-2 rounded-xl text-xs font-bold bg-rose-500 text-white shadow-sm';
+      const activeBtn = document.getElementById('gbtn-' + gameKey);
+      if (activeBtn) {
+        activeBtn.className = 'game-sub-btn px-3.5 py-2 rounded-xl text-xs font-extrabold bg-rose-500 text-white shadow-sm';
+      }
     }
 
-    // GAME 1: Q&A
+    // --- OPTIONAL PEERJS LIVE SYNC FOR LDR ---
+    let peerInstance = null;
+    let peerConn = null;
+    let myRoomCode = '';
+
+    function initPeerSync() {
+      if (typeof Peer === 'undefined') return;
+      const randomShort = 'KA-' + Math.floor(1000 + Math.random() * 9000);
+      try {
+        peerInstance = new Peer(randomShort);
+        peerInstance.on('open', (id) => {
+          myRoomCode = id;
+          const el = document.getElementById('peer-my-id');
+          if (el) el.textContent = id;
+        });
+        peerInstance.on('connection', (conn) => {
+          peerConn = conn;
+          setupPeerListeners();
+        });
+      } catch (e) {
+        console.log('Peer sync offline mode');
+      }
+    }
+
+    function connectToPartnerPeer() {
+      const code = document.getElementById('peer-partner-input').value.trim();
+      if (!code || !peerInstance) return;
+      peerConn = peerInstance.connect(code);
+      setupPeerListeners();
+    }
+
+    function setupPeerListeners() {
+      if (!peerConn) return;
+      peerConn.on('open', () => {
+        document.getElementById('peer-status-dot').className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping';
+        sendHeartBurst('🔗');
+      });
+      peerConn.on('data', (data) => {
+        if (data.type === 'justus-lock') {
+          if (data.role === 'Cardiff') {
+            justUsKokoLocked = data.answer;
+            document.getElementById('koko-lock-badge').textContent = '🔒 Terkunci (Rahasia)';
+            document.getElementById('koko-lock-badge').className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
+            document.getElementById('koko-answer-preview').textContent = '✨ Jawaban Koko sudah dikunci!';
+          } else {
+            justUsAweLocked = data.answer;
+            document.getElementById('awe-lock-badge').textContent = '🔒 Terkunci (Rahasia)';
+            document.getElementById('awe-lock-badge').className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
+            document.getElementById('awe-answer-preview').textContent = '✨ Jawaban Awe sudah dikunci!';
+          }
+        } else if (data.type === 'thumb-touch') {
+          sendHeartBurst('🫀');
+          const msg = document.getElementById('thumb-partner-msg');
+          if (msg) msg.textContent = `💓 Pasanganmu sedang menyentuh lingkaran hati dari ${data.role}!`;
+        }
+      });
+    }
+
+    function copyMyRoomCode() {
+      if (!myRoomCode) return;
+      const temp = document.createElement('input');
+      temp.value = myRoomCode;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      temp.remove();
+      sendHeartBurst('📋');
+    }
+
+    // --- GAME 1: "JUST US" SYNCHRONIZED COUPLE QUIZ ---
+    const justUsBank = {
+      sweet: [
+        {
+          q: "Apa bahasa cinta (Love Language) yang paling bikin kita merasa disayang meski terpisah 11.720 km?",
+          opts: ["Quality Time (Sleep Call & Nonton Bareng)", "Words of Affirmation (Pesan Manis & Pujian)", "Receiving Gifts (Kirim Kejutan / Makanan)", "Acts of Service (Bantuin Tugas / Perhatian Kecil)"]
+        },
+        {
+          q: "Bagian mana dari wajah pasanganmu yang paling pertama kamu perhatikan saat kamera videocall menyala?",
+          opts: ["Senyum manisnya 🥰", "Matanya yang berbinar 👀", "Rambutnya yang lucu 💇", "Ekspresi kangennya 🥺"]
+        },
+        {
+          q: "Kalau kita punya waktu 24 jam penuh berdua tanpa gangguan HP, kita paling pengen ngapain?",
+          opts: ["Pelukan seharian di kasur sambil cerita-cerita", "Road trip & kulineran dari pagi sampai malam", "Masak bareng lalu nonton marathon", "Jalan-jalan ke tempat baru sambil foto-foto"]
+        },
+        {
+          q: "Momen apa yang paling bikin hati kita meleleh selama pacaran?",
+          opts: ["Pas lagi diperhatiin hal-hal kecilnya", "Pas denger suara ketawanya waktu teleponan", "Pas dikirimin pesan panjang waktu bangun tidur", "Pas saling nguatin waktu lagi capek berat"]
+        }
+      ],
+      deeptalk: [
+        {
+          q: "Hal apa yang menurut kita paling membuat hubungan LDR Cardiff - Jakarta ini tetap kuat?",
+          opts: ["Komunikasi jujur & terbuka setiap hari", "Rasa percaya penuh satu sama lain", "Tujuan masa depan yang sama", "Saling ngerti kesibukan & selalu nyempetin kabar"]
+        },
+        {
+          q: "Saat salah satu dari kita lagi bad mood atau stres berat, respon apa yang paling dibutuhkan?",
+          opts: ["Didengerin dulu keluh kesahnya sampai tenang", "Dihibur pakai candaan receh & peluk virtual", "Dikasih waktu istirahat sebentar lalu ditelepon", "Dikirimin makanan favorit biar mood balik"]
+        },
+        {
+          q: "Apa pelajaran terbesar yang kita dapat selama menjalani hubungan jarak jauh ini?",
+          opts: ["Kesabaran & menghargai setiap detik pertemuan", "Kepercayaan itu fondasi segalanya", "Jarak cuma angka kalau hati saling jaga", "Kita jauh lebih kuat saat berjuang bareng"]
+        }
+      ],
+      quirky: [
+        {
+          q: "Kalau kita berdua ikut lomba masak tanpa resep, apa yang bakal terjadi di dapur?",
+          opts: ["Koko yang masak serius, Awe bagian icip-icip 😋", "Awe yang ngatur strategi, Koko bagian potong bahan", "Dapur berantakan tapi makanannya tetap enak!", "Ujung-ujungnya kita pesan makan online bareng 😂"]
+        },
+        {
+          q: "Kebiasaan lucu apa yang paling sering kejadian pas kita lagi videocall?",
+          opts: ["Salah satu tiba-tiba ngelag dengan ekspresi kocak", "Saling pamer makanan bikin ngiler", "Ngomong barengan terus ketawa sendiri", "Ketiduran sambil HP masih nyala"]
+        },
+        {
+          q: "Kalau hubungan kita dijadikan genre film, bakal jadi film apa?",
+          opts: ["Rom-Com (Romantis tapi penuh komedi kocak)", "Drama Romantis Bikin Baper", "Petualangan Lintas Benua 🇬🇧🇮🇩", "Slice of Life yang Hangat & Cozy"]
+        }
+      ],
+      future: [
+        {
+          q: "Destinasi liburan impian pertama yang wajib kita datangi bareng setelah kumpul nanti?",
+          opts: ["Keliling UK & Eropa musim dingin ❄️", "Liburan pantai tropis di Bali / Labuan Bajo 🏝️", "Kulineran & jalan-jalan ke Jepang 🌸", "Staycation tenang di cabin pegunungan 🏔️"]
+        },
+        {
+          q: "Suasana rumah impian Koko & Awe di masa depan pengen yang seperti apa?",
+          opts: ["Minimalis hangat dengan ruang nonton cozy", "Ada dapur luas buat masak bareng tiap hari", "Banyak tanaman hijau & jendela besar", "Dekat pusat kota yang praktis ke mana-mana"]
+        },
+        {
+          q: "Hal pertama yang dilakukan di menit pertama ketemu di bandara nanti?",
+          opts: ["Lari & peluk erat minimal 5 menit!", "Cubit pipi buat mastiin ini bukan mimpi", "Foto photobooth & selfie bareng", "Gandengan tangan nggak mau lepas sepanjang jalan"]
+        }
+      ],
+      flirty: [
+        {
+          q: "Outfit apa yang paling bikin pasanganmu kelihatan 10x lipat lebih menarik?",
+          opts: ["Kemeja rapi / Smart casual ✨", "Hoodie / Sweater oversized yang cozy 🧥", "Kaos santai habis mandi 🚿", "Pakaian serba hitam yang elegan 🖤"]
+        },
+        {
+          q: "Suara pasanganmu paling bikin deg-degan waktu kapan?",
+          opts: ["Pas baru bangun tidur (deep/sleepy voice)", "Pas bisik-bisik bilang 'I love you sayang'", "Pas lagi ketawa lepas karena bahagia", "Pas lagi manja minta ditemenin"]
+        },
+        {
+          q: "Kencan malam (Date Night) paling romantis versi kita berdua setelah ketemu nanti?",
+          opts: ["Candlelight dinner berdua dengan outfit terbaik", "Night drive keliling kota sambil dengerin lagu kita", "Cuddle di sofa sambil nonton film & lampu temaram", "Jalan kaki malam sambil gandengan tangan & ngobrol dalam"]
+        }
+      ]
+    };
+
+    let currentJustUsCat = 'sweet';
+    let currentJustUsIdx = 0;
+    let selectedOptionTemp = '';
+    let justUsKokoLocked = null;
+    let justUsAweLocked = null;
+    let justUsMatchStreak = 0;
+    let justUsTotalPlayed = 0;
+    let justUsTotalMatched = 0;
+
+    function initJustUsQuiz() {
+      renderJustUsQuestion();
+    }
+
+    function setJustUsCategory(cat) {
+      currentJustUsCat = cat;
+      currentJustUsIdx = 0;
+      ['sweet', 'deeptalk', 'quirky', 'future', 'flirty'].forEach(c => {
+        const btn = document.getElementById('jcat-' + c);
+        if (btn) {
+          btn.className = c === cat
+            ? 'jcat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-rose-500 text-white shadow-xs'
+            : 'jcat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 hover:bg-rose-100';
+        }
+      });
+      renderJustUsQuestion();
+    }
+
+    function renderJustUsQuestion() {
+      const list = justUsBank[currentJustUsCat];
+      const item = list[currentJustUsIdx];
+      document.getElementById('justus-q-badge').textContent = `PERTANYAAN #${currentJustUsIdx + 1} / ${list.length}`;
+      document.getElementById('justus-q-text').textContent = `"${item.q}"`;
+
+      selectedOptionTemp = '';
+      justUsKokoLocked = null;
+      justUsAweLocked = null;
+      document.getElementById('justus-reveal-banner').classList.add('hidden');
+
+      // Reset pods
+      document.getElementById('koko-lock-badge').textContent = 'Belum Kunci';
+      document.getElementById('koko-lock-badge').className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600';
+      document.getElementById('koko-answer-preview').textContent = 'Pilih salah satu opsi di atas dulu...';
+
+      document.getElementById('awe-lock-badge').textContent = 'Belum Kunci';
+      document.getElementById('awe-lock-badge').className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600';
+      document.getElementById('awe-answer-preview').textContent = 'Pilih salah satu opsi di atas dulu...';
+
+      const grid = document.getElementById('justus-options-grid');
+      grid.innerHTML = '';
+      item.opts.forEach((optText, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'justus-opt-btn p-3.5 rounded-2xl border-2 border-rose-100 bg-white hover:border-rose-400 text-xs font-bold text-slate-700 transition flex items-center gap-2.5';
+        const letter = ['A', 'B', 'C', 'D'][i];
+        btn.innerHTML = `<span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center font-extrabold shrink-0">${letter}</span> <span>${optText}</span>`;
+        btn.onclick = () => selectJustUsOption(optText, btn);
+        grid.appendChild(btn);
+      });
+    }
+
+    function selectJustUsOption(optText, btnEl) {
+      selectedOptionTemp = optText;
+      document.querySelectorAll('.justus-opt-btn').forEach(b => {
+        b.className = 'justus-opt-btn p-3.5 rounded-2xl border-2 border-rose-100 bg-white hover:border-rose-400 text-xs font-bold text-slate-700 transition flex items-center gap-2.5';
+      });
+      btnEl.className = 'justus-opt-btn p-3.5 rounded-2xl border-2 border-rose-500 bg-rose-50 text-xs font-extrabold text-rose-900 transition flex items-center gap-2.5 shadow-xs';
+    }
+
+    function lockJustUsAnswer(role) {
+      if (!selectedOptionTemp) {
+        const banner = document.getElementById('justus-reveal-banner');
+        banner.textContent = '👆 Klik salah satu pilihan jawaban (A/B/C/D) di atas terlebih dahulu ya sayang!';
+        banner.classList.remove('hidden');
+        return;
+      }
+      document.getElementById('justus-reveal-banner').classList.add('hidden');
+
+      if (role === 'Cardiff') {
+        justUsKokoLocked = selectedOptionTemp;
+        document.getElementById('koko-lock-badge').textContent = '🔒 Terkunci (Rahasia)';
+        document.getElementById('koko-lock-badge').className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
+        document.getElementById('koko-answer-preview').textContent = '🤫 Jawaban Koko tersegel (Siap dibuka!)';
+      } else {
+        justUsAweLocked = selectedOptionTemp;
+        document.getElementById('awe-lock-badge').textContent = '🔒 Terkunci (Rahasia)';
+        document.getElementById('awe-lock-badge').className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
+        document.getElementById('awe-answer-preview').textContent = '🤫 Jawaban Awe tersegel (Siap dibuka!)';
+      }
+
+      if (peerConn && peerConn.open) {
+        peerConn.send({ type: 'justus-lock', role: role, answer: selectedOptionTemp });
+      }
+      sendHeartBurst('🔒');
+    }
+
+    function revealJustUsAnswers() {
+      const banner = document.getElementById('justus-reveal-banner');
+      if (!justUsKokoLocked || !justUsAweLocked) {
+        banner.textContent = '⏳ Pastikan Koko dan Awe sama-sama sudah mengunci jawaban sebelum dibuka ya!';
+        banner.classList.remove('hidden');
+        return;
+      }
+
+      document.getElementById('koko-answer-preview').textContent = `🇬🇧 Koko: "${justUsKokoLocked}"`;
+      document.getElementById('awe-answer-preview').textContent = `🇮🇩 Awe: "${justUsAweLocked}"`;
+
+      justUsTotalPlayed++;
+      const isMatch = justUsKokoLocked === justUsAweLocked;
+      if (isMatch) {
+        justUsMatchStreak++;
+        justUsTotalMatched++;
+        banner.textContent = '🎉 SEHATI BANGET! Jawaban Koko & Awe 100% SAMA! Cinta kalian emang telepati! 💖';
+        sendHeartBurst('💖');
+      } else {
+        justUsMatchStreak = 0;
+        banner.textContent = '🥰 Jawaban kalian saling melengkapi! Yuk obrolin kenapa kalian pilih jawaban itu!';
+        sendHeartBurst('✨');
+      }
+      banner.classList.remove('hidden');
+
+      const pct = Math.round((justUsTotalMatched / justUsTotalPlayed) * 100);
+      document.getElementById('justus-compat-score').textContent = `${pct}% Match 💖`;
+      document.getElementById('justus-streak-badge').textContent = `🔥 ${justUsMatchStreak}`;
+    }
+
+    function nextJustUsQuestion() {
+      const list = justUsBank[currentJustUsCat];
+      currentJustUsIdx = (currentJustUsIdx + 1) % list.length;
+      renderJustUsQuestion();
+    }
+
+    function prevJustUsQuestion() {
+      const list = justUsBank[currentJustUsCat];
+      currentJustUsIdx = (currentJustUsIdx - 1 + list.length) % list.length;
+      renderJustUsQuestion();
+    }
+
+    // --- GAME 2: WHO'S MORE LIKELY TO (SIAPA YANG PALING...) ---
+    const likelyPrompts = [
+      "Siapa yang paling duluan ketiduran pas kita lagi sleep call malam-malam?",
+      "Siapa yang paling gampang kangen dan minta videocall duluan?",
+      "Siapa yang paling jago ngambek lucu tapi 5 menit kemudian udah senyum lagi?",
+      "Siapa yang paling boros beli jajanan atau kopi setiap minggu?",
+      "Siapa yang bakal nangis terharu duluan pas akhirnya kita pelukan di bandara nanti?",
+      "Siapa yang paling sering senyum-senyum sendiri sambil liatin foto lama kita?"
+    ];
+    let likelyIdx = 0;
+    let likelyVoteKoko = null;
+    let likelyVoteAwe = null;
+
+    function initLikelyGame() {
+      renderLikelyPrompt();
+    }
+
+    function renderLikelyPrompt() {
+      document.getElementById('likely-counter').textContent = `SKENARIO #${likelyIdx + 1} / ${likelyPrompts.length}`;
+      document.getElementById('likely-prompt-text').textContent = `"${likelyPrompts[likelyIdx]}"`;
+      likelyVoteKoko = null;
+      likelyVoteAwe = null;
+      document.getElementById('likely-koko-status').textContent = 'Belum pilih';
+      document.getElementById('likely-awe-status').textContent = 'Belum pilih';
+      document.getElementById('likely-result-box').classList.add('hidden');
+    }
+
+    function voteLikely(role, targetPerson) {
+      if (role === 'Cardiff') {
+        likelyVoteKoko = targetPerson;
+        document.getElementById('likely-koko-status').textContent = '🔒 Terkunci';
+      } else {
+        likelyVoteAwe = targetPerson;
+        document.getElementById('likely-awe-status').textContent = '🔒 Terkunci';
+      }
+      sendHeartBurst('👉');
+    }
+
+    function revealLikelyVotes() {
+      const box = document.getElementById('likely-result-box');
+      if (!likelyVoteKoko || !likelyVoteAwe) {
+        box.textContent = 'Pilih dulu jawaban Koko dan Awe ya sayang!';
+        box.classList.remove('hidden');
+        return;
+      }
+      document.getElementById('likely-koko-status').textContent = likelyVoteKoko;
+      document.getElementById('likely-awe-status').textContent = likelyVoteAwe;
+
+      if (likelyVoteKoko === likelyVoteAwe) {
+        box.textContent = `🎯 KOMPAK! Kalian berdua sepakat menunjuk ${likelyVoteKoko}! 😂💖`;
+        sendHeartBurst('🎉');
+      } else {
+        box.textContent = `🤭 Koko menunjuk ${likelyVoteKoko}, sedangkan Awe menunjuk ${likelyVoteAwe}!`;
+      }
+      box.classList.remove('hidden');
+    }
+
+    function nextLikelyPrompt() {
+      likelyIdx = (likelyIdx + 1) % likelyPrompts.length;
+      renderLikelyPrompt();
+    }
+
+    // --- GAME 3: DAILY LDR CHALLENGES & INTIMACY MISSIONS ---
+    const defaultChallenges = [
+      { id: 1, tag: "Voice Note", title: "Nyanyikan 1 Bait Lagu Kita 🎵", desc: "Kirimkan voice note menyanyikan reff lagu yang paling mengingatkanmu pada pasanganmu sekarang juga!", done: false },
+      { id: 2, tag: "Spontan", title: "Selfie Detik Ini Juga! 📸", desc: "Ambil foto selfie ekspresi paling menggemaskan saat ini (tanpa persiapan) atau masuk ke tab Photobooth!", done: false },
+      { id: 3, tag: "Apresiasi", title: "3 Alasan Aku Bersyukur Punya Kamu 💌", desc: "Sebutkan secara langsung lewat call atau tulis di Sticky Notes 3 hal yang paling kamu cintai dari pasanganmu minggu ini.", done: false },
+      { id: 4, tag: "Nostalgia", title: "Ceritakan First Impression 💭", desc: "Ceritakan kembali apa isi kepalamu saat pertama kali kita kenal dulu versus sekarang.", done: false },
+      { id: 5, tag: "Kencan Jauh", title: "Makan Cemilan yang Sama 🍿", desc: "Janjian beli cemilan atau minuman serupa di Cardiff & Jakarta lalu nikmati bareng sambil nonton di tab Bioskop!", done: false },
+      { id: 6, tag: "Tatap Mata", title: "60 Detik Eye Contact di Call 👀", desc: "Tatap mata pasanganmu di layar videocall selama 60 detik penuh sambil senyum tanpa bicara.", done: false }
+    ];
+
+    function getChallengesState() {
+      const saved = localStorage.getItem('ldr_justus_challenges');
+      return saved ? JSON.parse(saved) : defaultChallenges;
+    }
+
+    function initChallengesGame() {
+      const list = getChallengesState();
+      const grid = document.getElementById('challenges-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      let doneCount = 0;
+
+      list.forEach((ch, idx) => {
+        if (ch.done) doneCount++;
+        const card = document.createElement('div');
+        card.className = `p-5 rounded-3xl border-2 transition flex flex-col justify-between ${
+          ch.done ? 'bg-emerald-50/70 border-emerald-200' : 'bg-rose-50/40 border-rose-100 hover:border-rose-300'
+        }`;
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider mb-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-white text-rose-600 border border-rose-100">${ch.tag}</span>
+              <span>${ch.done ? '✅ Selesai' : '✨ Tantangan'}</span>
+            </div>
+            <h4 class="font-extrabold text-slate-800 text-sm mb-1">${ch.title}</h4>
+            <p class="text-xs text-slate-600 leading-relaxed">${ch.desc}</p>
+          </div>
+          <button onclick="toggleChallengeDone(${idx})" class="mt-4 w-full py-2 rounded-xl text-xs font-extrabold transition ${
+            ch.done ? 'bg-emerald-600 text-white' : 'bg-white hover:bg-rose-500 text-rose-600 hover:text-white border border-rose-200'
+          }">
+            ${ch.done ? 'Selesai Dilakukan Berdua 💖' : 'Tandai Selesai ✔'}
+          </button>
+        `;
+        grid.appendChild(card);
+      });
+
+      document.getElementById('challenge-done-counter').textContent = `${doneCount} / ${list.length} Misi Selesai`;
+    }
+
+    function toggleChallengeDone(idx) {
+      const list = getChallengesState();
+      list[idx].done = !list[idx].done;
+      localStorage.setItem('ldr_justus_challenges', JSON.stringify(list));
+      if (list[idx].done) sendHeartBurst('🌟');
+      initChallengesGame();
+    }
+
+    // --- GAME 4: THUMB KISS & HEARTBEAT TOUCH ---
+    let thumbTouchInterval = null;
+
+    function startThumbTouch(e) {
+      if (e) e.preventDefault();
+      document.getElementById('thumb-ring-1').classList.remove('hidden');
+      document.getElementById('thumb-ring-2').classList.remove('hidden');
+      document.getElementById('thumb-center-icon').className = 'text-6xl scale-125 transition-transform duration-300';
+      document.getElementById('thumb-status-label').textContent = 'Mengirim Detak Jantung Hangat... 💓';
+
+      if (navigator.vibrate) navigator.vibrate([80, 120, 80]);
+      sendHeartBurst('🫀');
+
+      if (peerConn && peerConn.open) {
+        peerConn.send({ type: 'thumb-touch', role: currentRole === 'Cardiff' ? 'Cardiff 🇬🇧' : 'Jakarta 🇮🇩' });
+      }
+
+      clearInterval(thumbTouchInterval);
+      thumbTouchInterval = setInterval(() => {
+        sendHeartBurst('💖');
+        if (navigator.vibrate) navigator.vibrate(60);
+      }, 1100);
+    }
+
+    function stopThumbTouch() {
+      clearInterval(thumbTouchInterval);
+      document.getElementById('thumb-ring-1').classList.add('hidden');
+      document.getElementById('thumb-ring-2').classList.add('hidden');
+      document.getElementById('thumb-center-icon').className = 'text-5xl transition-transform duration-300';
+      document.getElementById('thumb-status-label').textContent = 'Tahan Jari di Sini';
+    }
+
+    // GAME 5: Q&A
     const qnaDeck = {
       romantis: [
         "Hal kecil apa dari diriku yang paling sering bikin kamu senyum-senyum sendiri waktu lagi kangen?",
