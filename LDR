@@ -1,0 +1,1857 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Heart, Clock, Globe, Camera, Tv, Play, Pause, RotateCcw, 
+  Sparkles, MessageCircleHeart, Gamepad2, Send, Palette, 
+  Volume2, VolumeX, Video, VideoOff, Mic, MicOff, MonitorUp, 
+  Calendar, Check, Download, RefreshCw, Star, Smile, Share2,
+  Lock, Bookmark, Coffee, Moon, Sun, Pin, Music, X
+} from 'lucide-react';
+
+// Lo-Fi Ambient Audio Synthesizer for cozy background music (Web Audio API)
+class LoFiSoundEngine {
+  constructor() {
+    this.ctx = null;
+    this.isPlaying = false;
+    this.interval = null;
+  }
+
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      this.ctx = new AudioCtx();
+    }
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  }
+
+  playChord(notes, time, duration) {
+    if (!this.ctx) return;
+    notes.forEach(freq => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const filter = this.ctx.createBiquadFilter();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, time);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(750, time);
+
+      gain.gain.setValueAtTime(0, time);
+      gain.gain.linearRampToValueAtTime(0.04, time + 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(time);
+      osc.stop(time + duration);
+    });
+  }
+
+  toggle() {
+    this.init();
+    if (this.isPlaying) {
+      clearInterval(this.interval);
+      this.isPlaying = false;
+      return false;
+    } else {
+      this.isPlaying = true;
+      const chords = [
+        [261.63, 329.63, 392.00, 493.88], // Cmaj7
+        [220.00, 261.63, 329.63, 392.00], // Am7
+        [174.61, 220.00, 261.63, 329.63], // Fmaj7
+        [196.00, 246.94, 293.66, 392.00]  // G7
+      ];
+      let step = 0;
+      this.playChord(chords[step], this.ctx.currentTime, 3.8);
+      this.interval = setInterval(() => {
+        step = (step + 1) % chords.length;
+        if (this.ctx) this.playChord(chords[step], this.ctx.currentTime, 3.8);
+      }, 4000);
+      return true;
+    }
+  }
+}
+
+const audioEngine = new LoFiSoundEngine();
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [ukTime, setUkTime] = useState('');
+  const [jktTime, setJktTime] = useState('');
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [floatingHearts, setFloatingHearts] = useState([]);
+  const [userRole, setUserRole] = useState('Jakarta'); // 'Jakarta' or 'Cardiff'
+
+  // Couple Info State
+  const [togetherDate] = useState(new Date('2023-08-14T00:00:00')); // Custom anniversary
+  const [nextMeetDate] = useState(new Date('2025-07-20T00:00:00')); // Planned reunion
+  const [daysTogether, setDaysTogether] = useState(0);
+  const [daysUntilMeet, setDaysUntilMeet] = useState(0);
+
+  // Status & Vibe
+  const [ukStatus, setUkStatus] = useState({ vibe: 'Thinking of you 💭', busy: 'Studying' });
+  const [jktStatus, setJktStatus] = useState({ vibe: 'Missing my favorite human 💖', busy: 'Working' });
+
+  // Update clocks every second
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setUkTime(now.toLocaleTimeString('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      setJktTime(now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+
+      // Calculate days
+      const diffTogether = Math.floor((now - togetherDate) / (1000 * 60 * 60 * 24));
+      const diffMeet = Math.ceil((nextMeetDate - now) / (1000 * 60 * 60 * 24));
+      setDaysTogether(diffTogether > 0 ? diffTogether : 0);
+      setDaysUntilMeet(diffMeet > 0 ? diffMeet : 0);
+    };
+
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
+    return () => clearInterval(timer);
+  }, [togetherDate, nextMeetDate]);
+
+  // Burst Floating Hearts animation
+  const sendHeartBurst = () => {
+    const newHearts = Array.from({ length: 6 }).map((_, i) => ({
+      id: Date.now() + i,
+      left: Math.random() * 80 + 10,
+      size: Math.random() * 20 + 24,
+      duration: Math.random() * 2 + 2.5
+    }));
+    setFloatingHearts(prev => [...prev, ...newHearts]);
+    setTimeout(() => {
+      setFloatingHearts(prev => prev.filter(h => !newHearts.some(nh => nh.id === h.id)));
+    }, 4000);
+  };
+
+  const toggleBgm = () => {
+    const playing = audioEngine.toggle();
+    setIsAudioPlaying(playing);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-amber-50/40 to-pink-100 text-slate-800 flex flex-col font-sans selection:bg-rose-200">
+      {/* Floating Hearts Container */}
+      <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+        {floatingHearts.map(h => (
+          <div
+            key={h.id}
+            className="absolute bottom-6 animate-float-heart opacity-90 text-rose-500 drop-shadow-md"
+            style={{
+              left: `${h.left}%`,
+              fontSize: `${h.size}px`,
+              animationDuration: `${h.duration}s`
+            }}
+          >
+            💖
+          </div>
+        ))}
+      </div>
+
+      {/* Top Global Navigation Bar */}
+      <header className="sticky top-0 z-40 backdrop-blur-md bg-white/75 border-b border-rose-100/80 px-4 py-3 shadow-xs">
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-400 to-pink-500 flex items-center justify-center text-white shadow-md shadow-rose-200">
+              <Heart className="w-5 h-5 fill-current animate-pulse" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold tracking-tight text-slate-800 flex items-center gap-2">
+                Cardiff <span className="text-xs text-rose-500 bg-rose-100/70 font-semibold px-2 py-0.5 rounded-full">11,720 km</span> Jakarta
+              </h1>
+              <p className="text-xs text-slate-500">Our Private Safe Haven & Cozy Portal</p>
+            </div>
+          </div>
+
+          {/* Quick Stats / Role Switcher & Audio */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center bg-rose-50/90 border border-rose-200/60 rounded-xl p-1 text-xs font-medium text-slate-600">
+              <button
+                onClick={() => setUserRole('Jakarta')}
+                className={`px-2.5 py-1 rounded-lg transition-all ${userRole === 'Jakarta' ? 'bg-white text-rose-600 shadow-xs font-semibold' : 'hover:text-slate-900'}`}
+              >
+                🇮🇩 I'm in Jakarta
+              </button>
+              <button
+                onClick={() => setUserRole('Cardiff')}
+                className={`px-2.5 py-1 rounded-lg transition-all ${userRole === 'Cardiff' ? 'bg-white text-rose-600 shadow-xs font-semibold' : 'hover:text-slate-900'}`}
+              >
+                🇬🇧 I'm in Cardiff
+              </button>
+            </div>
+
+            <button
+              onClick={toggleBgm}
+              title="Toggle Lo-Fi Study & Love Chill Beats"
+              className={`p-2 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-medium ${
+                isAudioPlaying 
+                  ? 'bg-rose-500 text-white border-rose-600 shadow-sm shadow-rose-200 animate-pulse' 
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              {isAudioPlaying ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+              <span className="hidden sm:inline">{isAudioPlaying ? 'Lo-Fi On' : 'Play Music'}</span>
+            </button>
+
+            <button
+              onClick={sendHeartBurst}
+              className="p-2 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-xl shadow-md shadow-rose-300 active:scale-95 transition-all text-xs font-medium flex items-center gap-1.5"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Send Hugs</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Tab Navigation */}
+      <nav className="bg-white/50 border-b border-rose-100/60 sticky top-[61px] z-30 backdrop-blur-xs">
+        <div className="max-w-6xl mx-auto px-4 flex overflow-x-auto gap-2 py-2 scrollbar-none">
+          {[
+            { id: 'dashboard', label: 'Dashboard & Clocks', icon: Globe },
+            { id: 'photobooth', label: 'Korean 4-Cut Booth', icon: Camera },
+            { id: 'watch-call', label: 'Watch & Screen Share', icon: Tv },
+            { id: 'games', label: 'LDR Multiplayer Games', icon: Gamepad2 },
+            { id: 'letters', label: 'Capsules & Love Notes', icon: MessageCircleHeart },
+          ].map(tab => {
+            const Icon = tab.icon;
+            const active = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
+                  active
+                    ? 'bg-rose-500 text-white shadow-md shadow-rose-200'
+                    : 'text-slate-600 hover:bg-rose-100/50 hover:text-slate-900'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* Content Body */}
+      <main className="max-w-6xl mx-auto w-full p-4 sm:p-6 flex-1">
+        {activeTab === 'dashboard' && (
+          <DashboardSection
+            ukTime={ukTime}
+            jktTime={jktTime}
+            daysTogether={daysTogether}
+            daysUntilMeet={daysUntilMeet}
+            ukStatus={ukStatus}
+            setUkStatus={setUkStatus}
+            jktStatus={jktStatus}
+            setJktStatus={setJktStatus}
+            userRole={userRole}
+            sendHeartBurst={sendHeartBurst}
+          />
+        )}
+
+        {activeTab === 'photobooth' && <PhotoboothSection />}
+
+        {activeTab === 'watch-call' && <WatchAndCallSection sendHeartBurst={sendHeartBurst} />}
+
+        {activeTab === 'games' && <GamesHubSection />}
+
+        {activeTab === 'letters' && <LoveNotesAndCapsulesSection />}
+      </main>
+
+      {/* Footer */}
+      <footer className="mt-auto border-t border-rose-200/50 py-4 bg-white/40 text-center text-xs text-slate-500">
+        <p className="flex items-center justify-center gap-1">
+          Crafted with endless love for Cardiff 🇬🇧 & Jakarta 🇮🇩 • Forever Connected
+        </p>
+      </footer>
+
+      {/* Floating Heart Keyframes in Style Tag */}
+      <style>{`
+        @keyframes floatUp {
+          0% {
+            transform: translateY(0) scale(0.8) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(-90vh) scale(1.3) rotate(20deg);
+            opacity: 0;
+          }
+        }
+        .animate-float-heart {
+          animation: floatUp 3.5s ease-out forwards;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// --------------------------------------------------------------------------
+// 1. DASHBOARD & LDR HUB COMPONENT
+// --------------------------------------------------------------------------
+function DashboardSection({ ukTime, jktTime, daysTogether, daysUntilMeet, ukStatus, setUkStatus, jktStatus, setJktStatus, userRole, sendHeartBurst }) {
+  const [editingVibe, setEditingVibe] = useState(false);
+  const [customVibe, setCustomVibe] = useState('');
+
+  const handleUpdateVibe = (e) => {
+    e.preventDefault();
+    if (!customVibe.trim()) return;
+    if (userRole === 'Jakarta') {
+      setJktStatus(prev => ({ ...prev, vibe: customVibe }));
+    } else {
+      setUkStatus(prev => ({ ...prev, vibe: customVibe }));
+    }
+    setCustomVibe('');
+    setEditingVibe(false);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Top Banner: Milestone Counter */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="bg-white/80 backdrop-blur-md p-5 rounded-2xl border border-rose-100 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold text-rose-500 uppercase tracking-wider">Days of Loving You</p>
+            <h3 className="text-3xl font-extrabold text-slate-800 mt-1">{daysTogether} <span className="text-sm font-normal text-slate-500">days</span></h3>
+            <p className="text-xs text-slate-400 mt-1">Every second counts</p>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500">
+            <Calendar className="w-6 h-6" />
+          </div>
+        </div>
+
+        <div className="bg-white/80 backdrop-blur-md p-5 rounded-2xl border border-rose-100 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold text-pink-500 uppercase tracking-wider">Until Next Reunion</p>
+            <h3 className="text-3xl font-extrabold text-slate-800 mt-1">{daysUntilMeet} <span className="text-sm font-normal text-slate-500">days left</span></h3>
+            <p className="text-xs text-slate-400 mt-1">Airport hugs incoming ✈️</p>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center text-pink-500">
+            <Sparkles className="w-6 h-6" />
+          </div>
+        </div>
+
+        <div className="sm:col-span-2 lg:col-span-1 bg-gradient-to-tr from-rose-500 to-pink-500 p-5 rounded-2xl text-white shadow-md shadow-rose-200 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider opacity-90">Distance Bridge</span>
+            <Heart className="w-4 h-4 fill-white animate-bounce" />
+          </div>
+          <div className="my-2">
+            <p className="text-2xl font-bold">11,720 Kilometers</p>
+            <p className="text-xs opacity-80">7,282 miles across 7 timezones</p>
+          </div>
+          <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden mt-1">
+            <div className="bg-white h-full w-2/3 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Dual Clocks: Cardiff & Jakarta */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Cardiff Card */}
+        <div className="bg-white/85 backdrop-blur-md border border-slate-100 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-sky-100/50 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">🇬🇧</span>
+              <div>
+                <h3 className="font-bold text-slate-800 text-lg">Cardiff, United Kingdom</h3>
+                <p className="text-xs text-slate-400">GMT / BST (UK Time)</p>
+              </div>
+            </div>
+            <div className="p-2 bg-slate-50 rounded-xl text-amber-500">
+              <Sun className="w-5 h-5" />
+            </div>
+          </div>
+
+          <div className="text-4xl sm:text-5xl font-mono font-bold tracking-tight text-slate-800 my-2">
+            {ukTime || '--:--:--'}
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
+            <div>
+              <span className="text-slate-400 block mb-0.5">Current Vibe:</span>
+              <span className="font-medium bg-rose-50 text-rose-700 px-2.5 py-1 rounded-md inline-block">
+                {ukStatus.vibe}
+              </span>
+            </div>
+            <div className="text-right">
+              <span className="text-slate-400 block mb-0.5">Status:</span>
+              <span className="font-semibold text-slate-700">{ukStatus.busy}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Jakarta Card */}
+        <div className="bg-white/85 backdrop-blur-md border border-slate-100 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-rose-100/50 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">🇮🇩</span>
+              <div>
+                <h3 className="font-bold text-slate-800 text-lg">Jakarta, Indonesia</h3>
+                <p className="text-xs text-slate-400">WIB (Western Indonesia Time)</p>
+              </div>
+            </div>
+            <div className="p-2 bg-slate-50 rounded-xl text-indigo-500">
+              <Moon className="w-5 h-5" />
+            </div>
+          </div>
+
+          <div className="text-4xl sm:text-5xl font-mono font-bold tracking-tight text-slate-800 my-2">
+            {jktTime || '--:--:--'}
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
+            <div>
+              <span className="text-slate-400 block mb-0.5">Current Vibe:</span>
+              <span className="font-medium bg-pink-50 text-pink-700 px-2.5 py-1 rounded-md inline-block">
+                {jktStatus.vibe}
+              </span>
+            </div>
+            <div className="text-right">
+              <span className="text-slate-400 block mb-0.5">Status:</span>
+              <span className="font-semibold text-slate-700">{jktStatus.busy}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Interactive Status & Quick Action Pod */}
+      <div className="bg-white/80 rounded-2xl p-5 border border-rose-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h4 className="text-sm font-bold text-slate-800">Update your vibe for {userRole}</h4>
+          <p className="text-xs text-slate-500">Let your partner know what you're feeling right now</p>
+        </div>
+
+        {editingVibe ? (
+          <form onSubmit={handleUpdateVibe} className="flex items-center gap-2 w-full sm:w-auto">
+            <input
+              type="text"
+              placeholder="e.g. Drinking warm matcha & missing you"
+              value={customVibe}
+              onChange={(e) => setCustomVibe(e.target.value)}
+              className="text-xs px-3 py-2 border border-rose-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-400 flex-1 sm:w-64"
+            />
+            <button type="submit" className="text-xs bg-rose-500 text-white px-3 py-2 rounded-xl font-medium">
+              Save
+            </button>
+            <button type="button" onClick={() => setEditingVibe(false)} className="text-xs bg-slate-100 px-2.5 py-2 rounded-xl text-slate-600">
+              Cancel
+            </button>
+          </form>
+        ) : (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setEditingVibe(true)}
+              className="text-xs bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold px-4 py-2 rounded-xl transition-all"
+            >
+              Set My Current Mood ✨
+            </button>
+            <button
+              onClick={sendHeartBurst}
+              className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-2 rounded-xl transition-all flex items-center gap-1"
+            >
+              <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
+              Tinggalkan Ciuman
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Sweet Daily Romantic Reminders */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/50">
+          <div className="flex items-center gap-2 text-amber-800 text-xs font-bold mb-1">
+            <Coffee className="w-4 h-4 text-amber-600" />
+            <span>Cardiff Morning Tip</span>
+          </div>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Cardiff is 7 hours behind Jakarta. If it's 2 PM in Jakarta, it's 7 AM in Cardiff—perfect time to send a cozy "Good morning sweetheart" voice note!
+          </p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-pink-50/70 border border-pink-200/50">
+          <div className="flex items-center gap-2 text-pink-800 text-xs font-bold mb-1">
+            <Heart className="w-4 h-4 text-pink-600" />
+            <span>Golden Window</span>
+          </div>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Best time to call: 4 PM - 7 PM Jakarta (9 AM - 12 PM Cardiff) or midnight Jakarta when Cardiff wraps up late afternoon!
+          </p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200/50">
+          <div className="flex items-center gap-2 text-indigo-800 text-xs font-bold mb-1">
+            <Bookmark className="w-4 h-4 text-indigo-600" />
+            <span>Love Oath</span>
+          </div>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            "Distance is not for the fearful, it is for the bold. It's for those who know that true love is worth every mile and time zone."
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --------------------------------------------------------------------------
+// 2. KOREAN 4-CUT PHOTOBOOTH (Aesthetic Strip Camera)
+// --------------------------------------------------------------------------
+function PhotoboothSection() {
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [streamActive, setStreamActive] = useState(false);
+  const [countdown, setCountdown] = useState(null);
+  const [capturedSnaps, setCapturedSnaps] = useState([]); // Up to 4 images
+  const [selectedFilter, setSelectedFilter] = useState('retro'); // 'normal', 'retro', 'bw', 'blush', 'lofi'
+  const [selectedFrame, setSelectedFrame] = useState('classic-cream'); // 'classic-cream', 'soft-pink', 'dark-film', 'lavender'
+  const [stripSticker, setStripSticker] = useState('💖 Best Couple 🇬🇧🇮🇩');
+  const [isExporting, setIsExporting] = useState(false);
+
+  // Start Camera
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+        audio: false
+      });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+        setStreamActive(true);
+      }
+    } catch (err) {
+      console.error("Camera access error:", err);
+      // Fallback dummy simulation if user denies or in testing
+      setStreamActive(true);
+    }
+  };
+
+  // Stop Camera
+  const stopCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const tracks = videoRef.current.srcObject.getTracks();
+      tracks.forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    setStreamActive(false);
+  };
+
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
+
+  // Filter CSS styles
+  const getFilterStyle = (filter) => {
+    switch (filter) {
+      case 'retro':
+        return 'sepia(35%) contrast(110%) brightness(105%) saturate(120%)';
+      case 'bw':
+        return 'grayscale(100%) contrast(120%)';
+      case 'blush':
+        return 'hue-rotate(-15deg) saturate(130%) brightness(108%) contrast(98%)';
+      case 'lofi':
+        return 'contrast(130%) brightness(95%) saturate(85%)';
+      default:
+        return 'none';
+    }
+  };
+
+  // Take Snapshot sequence
+  const takeSnapshot = () => {
+    if (capturedSnaps.length >= 4) return;
+    setCountdown(3);
+
+    const countInterval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === 1) {
+          clearInterval(countInterval);
+          doCapture();
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const doCapture = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 400;
+    canvas.height = 300;
+    const ctx = canvas.getContext('2d');
+
+    if (videoRef.current && videoRef.current.videoWidth) {
+      ctx.filter = getFilterStyle(selectedFilter);
+      ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/png');
+      setCapturedSnaps(prev => [...prev, dataUrl]);
+    } else {
+      // Fallback cute placeholder if no camera
+      ctx.fillStyle = '#fce7f3';
+      ctx.fillRect(0, 0, 400, 300);
+      ctx.fillStyle = '#db2777';
+      ctx.font = '24px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`Pose #${capturedSnaps.length + 1} with You 💖`, 200, 150);
+      ctx.font = '14px sans-serif';
+      ctx.fillText('Cardiff ✈️ Jakarta', 200, 180);
+      const dataUrl = canvas.toDataURL('image/png');
+      setCapturedSnaps(prev => [...prev, dataUrl]);
+    }
+  };
+
+  const resetStrip = () => {
+    setCapturedSnaps([]);
+  };
+
+  // Download complete 4-cut photobooth strip
+  const downloadStrip = () => {
+    const finalCanvas = canvasRef.current;
+    if (!finalCanvas) return;
+    const ctx = finalCanvas.getContext('2d');
+
+    finalCanvas.width = 440;
+    finalCanvas.height = 1200;
+
+    // Background color based on frame
+    let bgColor = '#fffdf7';
+    let textColor = '#475569';
+    if (selectedFrame === 'soft-pink') {
+      bgColor = '#fdf2f8';
+      textColor = '#be185d';
+    } else if (selectedFrame === 'dark-film') {
+      bgColor = '#1e293b';
+      textColor = '#f8fafc';
+    } else if (selectedFrame === 'lavender') {
+      bgColor = '#f5f3ff';
+      textColor = '#6d28d9';
+    }
+
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+    // Top date / header
+    ctx.fillStyle = textColor;
+    ctx.font = 'bold 16px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('✨ CARDIFF ⇄ JAKARTA PHOTOBOX ✨', finalCanvas.width / 2, 40);
+
+    const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    ctx.font = '12px sans-serif';
+    ctx.fillText(dateStr + ' • 11,720 KM OF LOVE', finalCanvas.width / 2, 60);
+
+    // Draw images
+    const startY = 80;
+    const itemHeight = 240;
+    const itemWidth = 380;
+    const gap = 20;
+
+    const renderPromises = capturedSnaps.map((src, index) => {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const y = startY + index * (itemHeight + gap);
+          ctx.drawImage(img, 30, y, itemWidth, itemHeight);
+          // Tiny polaroid border
+          ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(30, y, itemWidth, itemHeight);
+          resolve();
+        };
+        img.src = src;
+      });
+    });
+
+    Promise.all(renderPromises).then(() => {
+      // Bottom footer / sticker
+      const footerY = startY + 4 * (itemHeight + gap) + 15;
+      ctx.fillStyle = textColor;
+      ctx.font = 'bold 18px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(stripSticker, finalCanvas.width / 2, footerY);
+
+      ctx.font = '11px monospace';
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('PHOTO STUDIO NO. 0814 • TOGETHER FOREVER', finalCanvas.width / 2, footerY + 24);
+
+      // Trigger download
+      const link = document.createElement('a');
+      link.download = `LDR_Photobooth_${Date.now()}.png`;
+      link.href = finalCanvas.toDataURL('image/png');
+      link.click();
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-rose-100 pb-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <Camera className="w-5 h-5 text-rose-500" />
+            Korean 4-Cut Photobooth Strip
+          </h2>
+          <p className="text-xs text-slate-500">Capture 4 cute poses, add retro filters & print your couple keepsake strip!</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {!streamActive ? (
+            <button
+              onClick={startCamera}
+              className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+            >
+              <Video className="w-4 h-4" />
+              Turn On Webcam
+            </button>
+          ) : (
+            <button
+              onClick={stopCamera}
+              className="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5"
+            >
+              <VideoOff className="w-4 h-4" />
+              Turn Off Camera
+            </button>
+          )}
+
+          {capturedSnaps.length > 0 && (
+            <button
+              onClick={resetStrip}
+              className="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-xl transition-all flex items-center gap-1"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Retake All
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left: Live Camera Viewfinder & Controls */}
+        <div className="lg:col-span-7 space-y-4">
+          <div className="relative bg-slate-900 rounded-3xl overflow-hidden aspect-4/3 shadow-lg border-4 border-white flex items-center justify-center">
+            {streamActive ? (
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-full object-cover transform scale-x-[-1]"
+                style={{ filter: getFilterStyle(selectedFilter) }}
+              />
+            ) : (
+              <div className="text-center p-6 text-slate-300 space-y-3">
+                <Camera className="w-12 h-12 mx-auto text-rose-400 stroke-[1.5]" />
+                <p className="text-sm font-medium">Camera is offline</p>
+                <p className="text-xs text-slate-400 max-w-xs">
+                  Click "Turn On Webcam" above to capture poses with your sweetheart!
+                </p>
+                <button
+                  onClick={startCamera}
+                  className="px-4 py-2 bg-rose-500 text-white rounded-xl text-xs font-semibold hover:bg-rose-600"
+                >
+                  Enable Camera
+                </button>
+              </div>
+            )}
+
+            {/* Countdown Overlay */}
+            {countdown !== null && (
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-20">
+                <span className="text-8xl font-black text-white animate-ping">{countdown}</span>
+              </div>
+            )}
+
+            {/* Viewfinder Grid overlay */}
+            <div className="absolute inset-4 pointer-events-none border border-white/20 rounded-2xl flex flex-col justify-between p-3">
+              <div className="flex justify-between items-center text-white/70 text-xs font-mono">
+                <span>REC ● 60FPS</span>
+                <span>CARDIFF ⇄ JAKARTA</span>
+              </div>
+              <div className="flex justify-center">
+                <span className="text-white/50 text-xs font-mono tracking-widest">+</span>
+              </div>
+              <div className="flex justify-between items-center text-white/70 text-xs font-mono">
+                <span>SNAP {capturedSnaps.length} / 4</span>
+                <span className="capitalize">Filter: {selectedFilter}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Trigger Button */}
+          <div className="flex justify-center">
+            <button
+              onClick={takeSnapshot}
+              disabled={capturedSnaps.length >= 4}
+              className={`px-8 py-3.5 rounded-2xl font-bold text-sm shadow-md flex items-center gap-2 transition-all ${
+                capturedSnaps.length >= 4
+                  ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-rose-300 active:scale-95'
+              }`}
+            >
+              <Camera className="w-5 h-5" />
+              {capturedSnaps.length >= 4 ? 'Strip Full (4/4 Completed)' : `Take Pose #${capturedSnaps.length + 1}`}
+            </button>
+          </div>
+
+          {/* Style Controls (Filters & Frame) */}
+          <div className="bg-white/90 p-5 rounded-2xl border border-rose-100 space-y-4">
+            <div>
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">
+                1. Aesthetic Color Filter
+              </label>
+              <div className="grid grid-cols-5 gap-2">
+                {[
+                  { id: 'normal', name: 'Natural' },
+                  { id: 'retro', name: 'Warm Retro' },
+                  { id: 'blush', name: 'Blush Pink' },
+                  { id: 'bw', name: 'B & W' },
+                  { id: 'lofi', name: 'Lo-Fi Grain' },
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    onClick={() => setSelectedFilter(f.id)}
+                    className={`py-2 px-1 rounded-xl text-xs font-medium border text-center transition-all ${
+                      selectedFilter === f.id
+                        ? 'border-rose-500 bg-rose-50 text-rose-700 font-bold shadow-xs'
+                        : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+                    }`}
+                  >
+                    {f.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">
+                2. Strip Frame Color
+              </label>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { id: 'classic-cream', name: 'Classic Cream', color: 'bg-amber-50' },
+                  { id: 'soft-pink', name: 'Blossom Pink', color: 'bg-pink-100' },
+                  { id: 'dark-film', name: 'Dark Noir', color: 'bg-slate-900 text-white' },
+                  { id: 'lavender', name: 'Dream Lavender', color: 'bg-purple-100' },
+                ].map((fr) => (
+                  <button
+                    key={fr.id}
+                    onClick={() => setSelectedFrame(fr.id)}
+                    className={`py-2 px-2 rounded-xl text-xs font-medium border text-center transition-all ${
+                      selectedFrame === fr.id
+                        ? 'ring-2 ring-rose-500 font-bold'
+                        : 'border-slate-200'
+                    } ${fr.color}`}
+                  >
+                    {fr.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">
+                3. Footer Caption / Sticker
+              </label>
+              <input
+                type="text"
+                value={stripSticker}
+                onChange={(e) => setStripSticker(e.target.value)}
+                className="w-full text-xs px-3 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-400 focus:outline-none"
+                placeholder="Write your custom caption..."
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Real-time 4-Cut Strip Preview & Download */}
+        <div className="lg:col-span-5 flex flex-col items-center">
+          <div className="w-full max-w-xs">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Strip Preview</span>
+              <span className="text-xs text-rose-500 font-medium">{capturedSnaps.length}/4 snaps</span>
+            </div>
+
+            {/* Strip Container */}
+            <div
+              className={`p-4 rounded-2xl shadow-xl transition-all border ${
+                selectedFrame === 'classic-cream'
+                  ? 'bg-[#fffdf7] border-amber-200/60 text-slate-700'
+                  : selectedFrame === 'soft-pink'
+                  ? 'bg-pink-50 border-pink-200 text-pink-900'
+                  : selectedFrame === 'dark-film'
+                  ? 'bg-slate-900 border-slate-700 text-slate-100'
+                  : 'bg-purple-50 border-purple-200 text-purple-900'
+              }`}
+            >
+              {/* Header */}
+              <div className="text-center mb-3">
+                <p className="font-mono text-[10px] tracking-wider uppercase opacity-80">
+                  Cardiff ⇄ Jakarta Studio
+                </p>
+                <p className="text-[9px] opacity-60">LDR 4-Cut Photobooth Strip</p>
+              </div>
+
+              {/* 4 Image Slots */}
+              <div className="space-y-2.5">
+                {[0, 1, 2, 3].map((index) => (
+                  <div
+                    key={index}
+                    className="w-full aspect-4/3 rounded-lg overflow-hidden bg-black/5 border border-black/10 flex items-center justify-center relative group"
+                  >
+                    {capturedSnaps[index] ? (
+                      <img
+                        src={capturedSnaps[index]}
+                        alt={`Pose ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center text-slate-300 text-xs">
+                        <Camera className="w-6 h-6 mx-auto mb-1 stroke-1" />
+                        <span>Pose #{index + 1}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer */}
+              <div className="text-center mt-3 pt-2 border-t border-current/10">
+                <p className="text-xs font-bold tracking-tight">{stripSticker}</p>
+                <p className="text-[9px] font-mono opacity-50 mt-0.5">
+                  {new Date().toLocaleDateString('id-ID')} • FOREVER IN LOVE
+                </p>
+              </div>
+            </div>
+
+            {/* Download Button */}
+            <div className="mt-4">
+              <button
+                onClick={downloadStrip}
+                disabled={capturedSnaps.length === 0}
+                className="w-full py-3 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-xl font-bold text-xs shadow-md shadow-rose-200 flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download className="w-4 h-4" />
+                Download Aesthetic 4-Cut Strip (.PNG)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Hidden Canvas for High-Resolution Export */}
+      <canvas ref={canvasRef} className="hidden" />
+    </div>
+  );
+}
+
+// --------------------------------------------------------------------------
+// 3. WATCH TOGETHER & SCREEN SHARE / VIDEO CALL SUITE
+// --------------------------------------------------------------------------
+function WatchAndCallSection({ sendHeartBurst }) {
+  const [youtubeUrl, setYoutubeUrl] = useState('https://www.youtube.com/watch?v=jfKfPfyJRdk'); // lofi girl default
+  const [currentVideoId, setCurrentVideoId] = useState('jfKfPfyJRdk');
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [isCamOn, setIsCamOn] = useState(false);
+  const [isMicMuted, setIsMicMuted] = useState(false);
+
+  const localVideoRef = useRef(null);
+  const screenShareRef = useRef(null);
+  const screenStreamRef = useRef(null);
+
+  // Extract YouTube ID
+  const extractVideoID = (url) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return match && match[2].length === 11 ? match[2] : null;
+  };
+
+  const handleLoadVideo = (e) => {
+    e.preventDefault();
+    const id = extractVideoID(youtubeUrl);
+    if (id) {
+      setCurrentVideoId(id);
+    }
+  };
+
+  // Real Screen Share using WebRTC getDisplayMedia
+  const toggleScreenShare = async () => {
+    if (isScreenSharing) {
+      if (screenStreamRef.current) {
+        screenStreamRef.current.getTracks().forEach(t => t.stop());
+        screenStreamRef.current = null;
+      }
+      if (screenShareRef.current) screenShareRef.current.srcObject = null;
+      setIsScreenSharing(false);
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({
+          video: { cursor: 'always' },
+          audio: false
+        });
+        screenStreamRef.current = stream;
+        if (screenShareRef.current) {
+          screenShareRef.current.srcObject = stream;
+          screenShareRef.current.play();
+        }
+        setIsScreenSharing(true);
+
+        stream.getVideoTracks()[0].onended = () => {
+          setIsScreenSharing(false);
+          screenStreamRef.current = null;
+        };
+      } catch (err) {
+        console.warn("Screen share cancelled or not allowed:", err);
+      }
+    }
+  };
+
+  // Toggle Camera for Call
+  const toggleCamera = async () => {
+    if (isCamOn) {
+      if (localVideoRef.current && localVideoRef.current.srcObject) {
+        localVideoRef.current.srcObject.getTracks().forEach(t => t.stop());
+        localVideoRef.current.srcObject = null;
+      }
+      setIsCamOn(false);
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+          localVideoRef.current.play();
+        }
+        setIsCamOn(true);
+      } catch (err) {
+        console.warn("Cam preview failed:", err);
+        setIsCamOn(true); // simulate
+      }
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-rose-100 pb-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <Tv className="w-5 h-5 text-rose-500" />
+            Watch Together & Virtual Screen Lounge
+          </h2>
+          <p className="text-xs text-slate-500">
+            Stream YouTube together, share your screen for Netflix/Anime, and video call simultaneously!
+          </p>
+        </div>
+
+        {/* Video Call Quick Actions */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleCamera}
+            className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              isCamOn ? 'bg-rose-500 text-white' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            {isCamOn ? <Video className="w-4 h-4" /> : <VideoOff className="w-4 h-4 text-slate-400" />}
+            {isCamOn ? 'Cam Active' : 'Start My Cam'}
+          </button>
+
+          <button
+            onClick={() => setIsMicMuted(!isMicMuted)}
+            className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              isMicMuted ? 'bg-rose-100 text-rose-700' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            {isMicMuted ? <MicOff className="w-4 h-4 text-rose-500" /> : <Mic className="w-4 h-4" />}
+            {isMicMuted ? 'Muted' : 'Mic On'}
+          </button>
+
+          <button
+            onClick={toggleScreenShare}
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              isScreenSharing 
+                ? 'bg-amber-500 text-white shadow-md shadow-amber-200' 
+                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            <MonitorUp className="w-4 h-4" />
+            {isScreenSharing ? 'Stop Sharing' : 'Share My Screen'}
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left: Main Media Stage (YouTube or Screen Share) */}
+        <div className="lg:col-span-8 space-y-4">
+          <div className="bg-slate-900 rounded-3xl overflow-hidden aspect-video shadow-xl border-4 border-white relative flex items-center justify-center">
+            {isScreenSharing ? (
+              <video
+                ref={screenShareRef}
+                autoPlay
+                playsInline
+                className="w-full h-full object-contain bg-black"
+              />
+            ) : (
+              <iframe
+                src={`https://www.youtube.com/embed/${currentVideoId}?autoplay=0&enablejsapi=1`}
+                title="Synchronized Media Player"
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )}
+
+            {/* In-Video Reaction Overlay */}
+            <div className="absolute bottom-4 right-4 z-20 flex gap-2">
+              {['🍿', '🥺', '💖', '😂', '🔥'].map((emoji, idx) => (
+                <button
+                  key={idx}
+                  onClick={sendHeartBurst}
+                  className="bg-black/60 hover:bg-black/80 backdrop-blur-xs text-white p-2 rounded-full text-base transition-transform active:scale-125 shadow-sm"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* YouTube Link Input Bar */}
+          <form onSubmit={handleLoadVideo} className="bg-white p-3.5 rounded-2xl border border-rose-100 flex items-center gap-2 shadow-xs">
+            <span className="text-xs font-bold text-slate-500 whitespace-nowrap px-2">YouTube URL:</span>
+            <input
+              type="text"
+              value={youtubeUrl}
+              onChange={(e) => setYoutubeUrl(e.target.value)}
+              placeholder="Paste any YouTube video or movie trailer link..."
+              className="flex-1 text-xs px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-400"
+            />
+            <button
+              type="submit"
+              className="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition-all"
+            >
+              Sync Video
+            </button>
+          </form>
+
+          {/* Preset Cozy Recommendations */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+            <span className="text-slate-400 font-medium whitespace-nowrap">Cozy Presets:</span>
+            {[
+              { title: '☕ Lo-Fi Chill Girl', id: 'jfKfPfyJRdk' },
+              { title: '🌧️ Rainy Night Coffee', id: '5qap5aO4i9A' },
+              { title: '🏮 Studio Ghibli Vibes', id: '7NO8Zhnj01I' },
+            ].map(preset => (
+              <button
+                key={preset.id}
+                onClick={() => {
+                  setCurrentVideoId(preset.id);
+                  setYoutubeUrl(`https://www.youtube.com/watch?v=${preset.id}`);
+                }}
+                className="px-3 py-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl whitespace-nowrap font-medium transition-all"
+              >
+                {preset.title}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: Dual Video Call Pods (Cardiff + Jakarta) */}
+        <div className="lg:col-span-4 space-y-4">
+          <div className="bg-white/85 p-4 rounded-3xl border border-rose-100 shadow-sm space-y-4">
+            <h3 className="text-sm font-bold text-slate-800 flex items-center justify-between">
+              <span>Live FaceTime Window</span>
+              <span className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                Connected
+              </span>
+            </h3>
+
+            {/* Video Box 1: Your Camera */}
+            <div className="relative aspect-4/3 rounded-2xl bg-slate-900 overflow-hidden border border-slate-200">
+              {isCamOn ? (
+                <video
+                  ref={localVideoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover transform scale-x-[-1]"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-slate-400 p-4 text-center">
+                  <VideoOff className="w-8 h-8 mb-1.5 opacity-50" />
+                  <p className="text-xs font-medium">Your camera is off</p>
+                  <button onClick={toggleCamera} className="mt-2 text-[11px] text-rose-400 hover:underline">
+                    Enable webcam
+                  </button>
+                </div>
+              )}
+              <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-xs text-white text-[10px] font-medium px-2 py-0.5 rounded-md">
+                You (Active)
+              </div>
+            </div>
+
+            {/* Video Box 2: Partner's Camera (Simulated cozy stream) */}
+            <div className="relative aspect-4/3 rounded-2xl bg-gradient-to-tr from-pink-900 to-slate-900 overflow-hidden border border-slate-200 flex items-center justify-center">
+              <div className="text-center p-4 text-white">
+                <div className="w-12 h-12 rounded-full bg-rose-500/80 mx-auto mb-2 flex items-center justify-center text-xl shadow-lg animate-pulse">
+                  💖
+                </div>
+                <p className="text-xs font-semibold">Your Love</p>
+                <p className="text-[10px] text-rose-200/80 mt-0.5">Connected from Cardiff 🇬🇧</p>
+              </div>
+
+              <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-xs text-white text-[10px] font-medium px-2 py-0.5 rounded-md">
+                Sweetheart (Cardiff)
+              </div>
+            </div>
+
+            {/* Hug Button */}
+            <button
+              onClick={sendHeartBurst}
+              className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 border border-rose-200/60"
+            >
+              <Heart className="w-4 h-4 fill-rose-500 text-rose-500" />
+              Blow a Kiss Across Screen
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --------------------------------------------------------------------------
+// 4. LDR MULTIPLAYER GAMES SUITE
+// --------------------------------------------------------------------------
+function GamesHubSection() {
+  const [selectedGame, setSelectedGame] = useState('cards'); // 'cards', 'tictactoe', 'wordle', 'canvas', 'wouldyourather'
+
+  return (
+    <div className="space-y-6">
+      {/* Game Selector Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-rose-100 pb-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <Gamepad2 className="w-5 h-5 text-rose-500" />
+            LDR Couple's Arcade & Games
+          </h2>
+          <p className="text-xs text-slate-500">Pick any game to play turn-by-turn together over call or chat!</p>
+        </div>
+
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          {[
+            { id: 'cards', label: 'Heart Q&A Deck' },
+            { id: 'tictactoe', label: 'Love Tic-Tac-Toe' },
+            { id: 'wordle', label: 'Daily Wordle' },
+            { id: 'canvas', label: 'Shared Love Canvas' },
+            { id: 'wouldyourather', label: 'Would You Rather?' },
+          ].map(g => (
+            <button
+              key={g.id}
+              onClick={() => setSelectedGame(g.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                selectedGame === g.id
+                  ? 'bg-rose-500 text-white shadow-xs'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-rose-50'
+              }`}
+            >
+              {g.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Render Active Game */}
+      {selectedGame === 'cards' && <HeartDeckGame />}
+      {selectedGame === 'tictactoe' && <TicTacToeGame />}
+      {selectedGame === 'wordle' && <CoupleWordleGame />}
+      {selectedGame === 'canvas' && <LoveWhiteboardGame />}
+      {selectedGame === 'wouldyourather' && <WouldYouRatherGame />}
+    </div>
+  );
+}
+
+// GAME 1: Heart-to-Heart Q&A Deck
+function HeartDeckGame() {
+  const questions = [
+    { cat: 'Deep Love', q: 'What was the exact moment you realized you truly fell in love with me?' },
+    { cat: 'Future Dreams', q: 'If we could wake up tomorrow in our dream apartment together, what city would it be in and what is our morning routine?' },
+    { cat: 'Memories', q: 'What is your single favorite memory of us in person before distance started?' },
+    { cat: 'Funny Scenarios', q: 'If we were trapped on a deserted island, who would survive longer and why?' },
+    { cat: 'Spicy & Cozy', q: 'What is the sweetest or most attractive thing I do without even realizing it?' },
+    { cat: 'LDR Comfort', q: 'What is the hardest part of our distance for you, and what gives you the most peace?' },
+    { cat: 'Future Dreams', q: 'What is the very first meal you want us to cook together once we reunite?' },
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  const nextCard = () => {
+    setIsFlipped(false);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % questions.length);
+    }, 200);
+  };
+
+  const prevCard = () => {
+    setIsFlipped(false);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev - 1 + questions.length) % questions.length);
+    }, 200);
+  };
+
+  const card = questions[currentIndex];
+
+  return (
+    <div className="max-w-md mx-auto py-6 flex flex-col items-center">
+      <div className="text-center mb-4">
+        <span className="text-xs font-bold text-rose-500 uppercase tracking-widest bg-rose-50 px-3 py-1 rounded-full">
+          Card {currentIndex + 1} of {questions.length}
+        </span>
+      </div>
+
+      {/* Flip Card */}
+      <div
+        onClick={() => setIsFlipped(!isFlipped)}
+        className="w-full h-80 rounded-3xl bg-white border-2 border-rose-200/80 shadow-lg cursor-pointer p-8 flex flex-col justify-between transition-all transform hover:-translate-y-1 relative"
+      >
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-pink-50 text-pink-700">
+            {card.cat}
+          </span>
+          <Heart className="w-5 h-5 text-rose-400 fill-rose-100" />
+        </div>
+
+        <div className="text-center my-auto">
+          <p className="text-lg sm:text-xl font-bold text-slate-800 leading-relaxed">
+            "{card.q}"
+          </p>
+          <p className="text-xs text-slate-400 mt-4 italic">
+            Tap anywhere to discuss & answer each other
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-slate-100">
+          <span>Cardiff 🇬🇧</span>
+          <span>❤️</span>
+          <span>Jakarta 🇮🇩</span>
+        </div>
+      </div>
+
+      {/* Navigation buttons */}
+      <div className="flex items-center gap-3 mt-6">
+        <button
+          onClick={prevCard}
+          className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl"
+        >
+          Previous
+        </button>
+        <button
+          onClick={nextCard}
+          className="px-6 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold rounded-xl shadow-xs"
+        >
+          Draw Next Card ✨
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// GAME 2: Couple's Tic-Tac-Toe
+function TicTacToeGame() {
+  const [board, setBoard] = useState(Array(9).fill(null));
+  const [isXNext, setIsXNext] = useState(true); // X = Hearts (Jakarta), O = Stars (Cardiff)
+  const [winner, setWinner] = useState(null);
+
+  const calculateWinner = (squares) => {
+    const lines = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        return squares[a];
+      }
+    }
+    return squares.every(sq => sq !== null) ? 'Tie' : null;
+  };
+
+  const handleClick = (i) => {
+    if (board[i] || winner) return;
+    const newBoard = board.slice();
+    newBoard[i] = isXNext ? '💖' : '⭐';
+    setBoard(newBoard);
+    setIsXNext(!isXNext);
+    const win = calculateWinner(newBoard);
+    if (win) setWinner(win);
+  };
+
+  const restartGame = () => {
+    setBoard(Array(9).fill(null));
+    setIsXNext(true);
+    setWinner(null);
+  };
+
+  return (
+    <div className="max-w-xs mx-auto py-4 flex flex-col items-center">
+      <div className="text-center mb-4">
+        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Turn-Based Love Duel</p>
+        <h4 className="text-sm font-bold text-slate-800 mt-1">
+          {winner
+            ? winner === 'Tie'
+              ? "It's a Tie! Both are equally cute 🥰"
+              : `Winner: ${winner === '💖' ? 'Jakarta (💖)' : 'Cardiff (⭐)'}! 🎉`
+            : `Turn: ${isXNext ? 'Jakarta (💖 Hearts)' : 'Cardiff (⭐ Stars)'}`}
+        </h4>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 bg-rose-100/70 p-3 rounded-3xl border border-rose-200">
+        {board.map((val, idx) => (
+          <button
+            key={idx}
+            onClick={() => handleClick(idx)}
+            className="w-20 h-20 bg-white hover:bg-rose-50 rounded-2xl text-2xl flex items-center justify-center font-bold shadow-xs transition-all active:scale-95"
+          >
+            {val}
+          </button>
+        ))}
+      </div>
+
+      <button
+        onClick={restartGame}
+        className="mt-5 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5"
+      >
+        <RotateCcw className="w-3.5 h-3.5" />
+        New Match
+      </button>
+    </div>
+  );
+}
+
+// GAME 3: Couple Wordle
+function CoupleWordleGame() {
+  const solution = 'HONEY';
+  const [guesses, setGuesses] = useState([]);
+  const [currentGuess, setCurrentGuess] = useState('');
+  const [gameWon, setGameWon] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (currentGuess.length !== 5 || guesses.length >= 6 || gameWon) return;
+
+    const newGuesses = [...guesses, currentGuess.toUpperCase()];
+    setGuesses(newGuesses);
+    if (currentGuess.toUpperCase() === solution) {
+      setGameWon(true);
+    }
+    setCurrentGuess('');
+  };
+
+  const getLetterStatus = (letter, index) => {
+    if (solution[index] === letter) return 'bg-emerald-500 text-white';
+    if (solution.includes(letter)) return 'bg-amber-400 text-white';
+    return 'bg-slate-300 text-slate-700';
+  };
+
+  return (
+    <div className="max-w-xs mx-auto py-4 flex flex-col items-center">
+      <div className="text-center mb-3">
+        <h4 className="text-sm font-bold text-slate-800">Couple's Secret Wordle</h4>
+        <p className="text-xs text-slate-500">Guess our 5-letter special pet name</p>
+      </div>
+
+      <div className="space-y-1.5 mb-4">
+        {Array.from({ length: 6 }).map((_, rowIndex) => {
+          const guess = guesses[rowIndex] || '';
+          return (
+            <div key={rowIndex} className="flex gap-1.5">
+              {Array.from({ length: 5 }).map((_, colIndex) => {
+                const letter = guess[colIndex] || (rowIndex === guesses.length ? currentGuess[colIndex] || '' : '');
+                const hasEvaluated = rowIndex < guesses.length;
+                return (
+                  <div
+                    key={colIndex}
+                    className={`w-11 h-11 border-2 rounded-xl flex items-center justify-center font-bold text-sm uppercase transition-all ${
+                      hasEvaluated
+                        ? getLetterStatus(letter, colIndex)
+                        : letter
+                        ? 'border-rose-400 bg-white text-slate-800'
+                        : 'border-slate-200 bg-white/60 text-slate-400'
+                    }`}
+                  >
+                    {letter}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+
+      {gameWon ? (
+        <div className="text-center p-3 bg-emerald-50 text-emerald-800 rounded-xl text-xs font-semibold">
+          🎉 You unlocked the word: <strong>{solution}</strong>! You know me so well!
+        </div>
+      ) : guesses.length >= 6 ? (
+        <div className="text-center p-3 bg-rose-50 text-rose-800 rounded-xl text-xs">
+          The word was <strong>{solution}</strong>. Still love you to pieces!
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="flex gap-2 w-full">
+          <input
+            type="text"
+            maxLength={5}
+            value={currentGuess}
+            onChange={(e) => setCurrentGuess(e.target.value.toUpperCase())}
+            placeholder="5 Letters..."
+            className="flex-1 text-center font-mono font-bold text-xs uppercase px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-400"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl"
+          >
+            Guess
+          </button>
+        </form>
+      )}
+    </div>
+  );
+}
+
+// GAME 4: Shared Love Canvas Whiteboard
+function LoveWhiteboardGame() {
+  const canvasRef = useRef(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [brushColor, setBrushColor] = useState('#f43f5e');
+  const [brushSize, setBrushSize] = useState(4);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = 360;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+  }, []);
+
+  const startDraw = (e) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+    const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    setIsDrawing(true);
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+    const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = brushColor;
+    ctx.lineWidth = brushSize;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  };
+
+  const stopDraw = () => {
+    setIsDrawing(false);
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+          Shared Interactive Canvas (Doodle & Guess)
+        </h4>
+        <div className="flex items-center gap-2">
+          {['#f43f5e', '#ec4899', '#8b5cf6', '#3b82f6', '#10b981', '#1e293b'].map((c) => (
+            <button
+              key={c}
+              onClick={() => setBrushColor(c)}
+              className={`w-5 h-5 rounded-full border-2 transition-transform ${brushColor === c ? 'scale-125 border-white shadow-xs' : 'border-transparent'}`}
+              style={{ backgroundColor: c }}
+            />
+          ))}
+          <button
+            onClick={clearCanvas}
+            className="text-xs px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg ml-2 font-medium"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border-2 border-rose-100 overflow-hidden shadow-inner bg-white touch-none">
+        <canvas
+          ref={canvasRef}
+          onMouseDown={startDraw}
+          onMouseMove={draw}
+          onMouseUp={stopDraw}
+          onMouseLeave={stopDraw}
+          onTouchStart={startDraw}
+          onTouchMove={draw}
+          onTouchEnd={stopDraw}
+          className="w-full h-80 block cursor-crosshair"
+        />
+      </div>
+      <p className="text-center text-[11px] text-slate-400">
+        Draw secret love doodles, play Pictionary, or leave cute handwritten messages!
+      </p>
+    </div>
+  );
+}
+
+// GAME 5: Would You Rather? Couple Edition
+function WouldYouRatherGame() {
+  const scenarios = [
+    { a: 'Live in a quiet cottage in Wales together', b: 'Live in a luxury high-rise apartment in Jakarta' },
+    { a: 'Travel together for 1 month non-stop with no phones', b: 'Have unlimited free flight tickets between UK & ID forever' },
+    { a: 'Cook an elaborate 5-course romantic dinner together', b: 'Order late night street food & binge movies in pajamas' },
+    { a: 'Know what each other is thinking 24/7', b: 'Never have any disagreements again' },
+  ];
+
+  const [index, setIndex] = useState(0);
+  const [selectedOpt, setSelectedOpt] = useState(null);
+
+  const scenario = scenarios[index];
+
+  return (
+    <div className="max-w-md mx-auto py-4 text-center space-y-4">
+      <span className="text-xs font-bold text-rose-500 uppercase tracking-widest bg-rose-50 px-3 py-1 rounded-full">
+        Scenario {index + 1} of {scenarios.length}
+      </span>
+      <h3 className="text-base font-bold text-slate-800">Would You Rather...</h3>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+        <button
+          onClick={() => setSelectedOpt('A')}
+          className={`p-5 rounded-2xl border-2 text-left font-semibold text-xs transition-all ${
+            selectedOpt === 'A'
+              ? 'border-rose-500 bg-rose-50 text-rose-900 shadow-md'
+              : 'border-slate-200 bg-white hover:border-rose-200 text-slate-700'
+          }`}
+        >
+          <span className="text-rose-500 font-bold block mb-1">Option A</span>
+          {scenario.a}
+        </button>
+
+        <button
+          onClick={() => setSelectedOpt('B')}
+          className={`p-5 rounded-2xl border-2 text-left font-semibold text-xs transition-all ${
+            selectedOpt === 'B'
+              ? 'border-pink-500 bg-pink-50 text-pink-900 shadow-md'
+              : 'border-slate-200 bg-white hover:border-pink-200 text-slate-700'
+          }`}
+        >
+          <span className="text-pink-500 font-bold block mb-1">Option B</span>
+          {scenario.b}
+        </button>
+      </div>
+
+      {selectedOpt && (
+        <p className="text-xs text-rose-600 font-medium animate-fade-in">
+          Great choice! Ask your partner over call what they chose to see if you matched! ✨
+        </p>
+      )}
+
+      <button
+        onClick={() => {
+          setSelectedOpt(null);
+          setIndex((prev) => (prev + 1) % scenarios.length);
+        }}
+        className="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold shadow-xs"
+      >
+        Next Question
+      </button>
+    </div>
+  );
+}
+
+// --------------------------------------------------------------------------
+// 5. LOVE NOTES & DIGITAL TIME CAPSULES
+// --------------------------------------------------------------------------
+function LoveNotesAndCapsulesSection() {
+  const [capsules, setCapsules] = useState([
+    {
+      id: 1,
+      title: 'Open when you feel really lonely & miss my hugs',
+      text: 'Remember that every sunset in Cardiff is getting closer to sunrise in Jakarta. Close your eyes, put your hand over your heart, and remember my arms around you. I am with you always.',
+      unlocked: false
+    },
+    {
+      id: 2,
+      title: 'Open when you had a exhausting day of work / uni',
+      text: 'You did so well today! I am so incredibly proud of you. Please drink water, eat delicious comfort food, and let me pamper you over call tonight. You are my hero.',
+      unlocked: false
+    },
+    {
+      id: 3,
+      title: 'Open when we finally meet at the airport!',
+      text: 'I am running straight towards you! No more goodbyes at terminal gates. This hug is going to last at least 10 whole minutes! Welcome home!',
+      unlocked: false
+    }
+  ]);
+
+  const [notes, setNotes] = useState([
+    { id: 1, author: 'Cardiff', text: 'Good morning my sunshine! Listening to our song while walking through Bute Park.', color: 'bg-amber-100' },
+    { id: 2, author: 'Jakarta', text: 'Just had indomie and wished you were here to steal half my bowl 🍜', color: 'bg-rose-100' },
+    { id: 3, author: 'Cardiff', text: 'Counted the days again today... cannot wait to hold your hand.', color: 'bg-pink-100' },
+  ]);
+
+  const [newNote, setNewNote] = useState('');
+
+  const unlockCapsule = (id) => {
+    setCapsules(capsules.map(c => c.id === id ? { ...c, unlocked: true } : c));
+  };
+
+  const handleAddNote = (e) => {
+    e.preventDefault();
+    if (!newNote.trim()) return;
+    const colors = ['bg-amber-100', 'bg-rose-100', 'bg-pink-100', 'bg-purple-100', 'bg-sky-100'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    setNotes([
+      ...notes,
+      {
+        id: Date.now(),
+        author: 'Me',
+        text: newNote,
+        color: randomColor
+      }
+    ]);
+    setNewNote('');
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Digital Time Capsules */}
+      <div>
+        <div className="border-b border-rose-100 pb-3 mb-4">
+          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <Lock className="w-5 h-5 text-rose-500" />
+            "Open When..." Digital Love Capsules
+          </h2>
+          <p className="text-xs text-slate-500">
+            Letters sealed with love, to be unlocked only during specific moods and milestones.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {capsules.map(capsule => (
+            <div
+              key={capsule.id}
+              className={`p-5 rounded-2xl border transition-all ${
+                capsule.unlocked
+                  ? 'bg-white border-rose-200 shadow-md'
+                  : 'bg-rose-50/60 border-rose-100'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold text-rose-600 uppercase tracking-wider">
+                  Letter #{capsule.id}
+                </span>
+                {capsule.unlocked ? (
+                  <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+                ) : (
+                  <Lock className="w-4 h-4 text-slate-400" />
+                )}
+              </div>
+
+              <h4 className="text-sm font-bold text-slate-800 mb-2 leading-snug">
+                {capsule.title}
+              </h4>
+
+              {capsule.unlocked ? (
+                <p className="text-xs text-slate-600 leading-relaxed italic bg-rose-50/50 p-3 rounded-xl border border-rose-100">
+                  "{capsule.text}"
+                </p>
+              ) : (
+                <div className="mt-4">
+                  <button
+                    onClick={() => unlockCapsule(capsule.id)}
+                    className="w-full py-2 bg-white hover:bg-rose-500 hover:text-white border border-rose-200 text-rose-600 text-xs font-semibold rounded-xl transition-all shadow-xs"
+                  >
+                    Break Wax Seal & Read
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Sticky Love Board */}
+      <div>
+        <div className="border-b border-rose-100 pb-3 mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <Pin className="w-5 h-5 text-rose-500" />
+              Sticky Notes Love Board
+            </h2>
+            <p className="text-xs text-slate-500">Post-it notes you leave for each other throughout the day</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleAddNote} className="flex gap-2 mb-6">
+          <input
+            type="text"
+            value={newNote}
+            onChange={(e) => setNewNote(e.target.value)}
+            placeholder="Write a sweet post-it note for your partner to see..."
+            className="flex-1 text-xs px-4 py-3 bg-white border border-rose-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-400 shadow-xs"
+          />
+          <button
+            type="submit"
+            className="px-5 py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5"
+          >
+            <Send className="w-3.5 h-3.5" />
+            Stick Note
+          </button>
+        </form>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {notes.map(n => (
+            <div
+              key={n.id}
+              className={`${n.color} p-5 rounded-2xl shadow-sm border border-black/5 transform hover:rotate-1 transition-transform relative flex flex-col justify-between h-40`}
+            >
+              <div className="flex justify-between items-center text-[10px] font-bold text-black/40 uppercase">
+                <span>{n.author}</span>
+                <span>📌</span>
+              </div>
+              <p className="text-xs font-medium text-slate-800 leading-relaxed my-auto">
+                "{n.text}"
+              </p>
+              <div className="text-[10px] text-black/30 font-mono text-right">
+                Forever yours
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
